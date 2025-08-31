@@ -100,14 +100,7 @@ export function AboutPage() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,255,255,0.1),transparent_50%)]"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-4xl mx-auto text-center">
-            <div className="mb-8">
-              <Link to="/">
-                <Button variant="outline" size="sm" className="border-border/50 hover:bg-surface/50 hover:border-accent-cyan backdrop-blur-sm transition-all duration-300">
-                  <ArrowLeft className="h-4 w-4 mr-2" />
-                  Back to Home
-                </Button>
-              </Link>
-            </div>
+
             <Badge variant="secondary" className="mb-6 bg-gradient-to-r from-accent-cyan to-accent-violet text-white border-0 shadow-glow-cyan animate-glow-pulse">
               <Brain className="h-4 w-4 mr-2" />
               About Lumio
@@ -336,13 +329,37 @@ export function AboutPage() {
         </div>
       </section>
 
+      {/* Back to Home Section */}
+      <section className="py-12 bg-surface/20">
+        <div className="container mx-auto px-4">
+          <div className="text-center">
+            <Link to="/">
+              <Button variant="outline" size="lg" className="border-border/50 hover:bg-surface/50 hover:border-accent-cyan backdrop-blur-sm transition-all duration-300">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Home
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* Footer */}
       <footer className="border-t border-border/30 py-16 bg-elevated/50 backdrop-blur-sm">
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <Link to="/" className="flex items-center space-x-3 mb-6 md:mb-0 group">
               <div className="brand-icon group-hover:scale-110 transition-transform duration-300">
-                <Brain className="h-6 w-6 text-accent-cyan" />
+                <img 
+                  src="/favicon-32x32.png" 
+                  alt="Lumio" 
+                  className="h-6 w-6" 
+                  onError={(e) => {
+                    // Fallback to Brain icon if image fails to load
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <Brain className="h-6 w-6 text-accent-cyan hidden" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-accent-cyan to-accent-violet bg-clip-text text-transparent">
                 Lumio

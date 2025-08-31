@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { Header } from '@/components/Header';
 import { 
   Sparkles, 
   ArrowLeft,
@@ -150,20 +151,30 @@ export function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <Link to="/" className="inline-flex items-center space-x-2 mb-4">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Sparkles className="h-4 w-4" />
+    <div className="min-h-screen bg-gradient-to-br from-bg via-surface/20 to-elevated">
+      <Header />
+      <main className="container mx-auto px-4 py-8">
+        <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center">
+          <div className="w-full max-w-md">
+            {/* Auth Header */}
+            <div className="text-center mb-8">
+              <div className="brand-icon mx-auto mb-4">
+                <img 
+                  src="/favicon-32x32.png" 
+                  alt="Lumio" 
+                  className="h-8 w-8" 
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                  }}
+                />
+                <Sparkles className="h-8 w-8 text-accent-cyan hidden" />
+              </div>
+              <h1 className="text-2xl font-bold highlight-text mb-2">Welcome to Lumio</h1>
+              <p className="text-sm text-muted">Make every post shine with AI</p>
             </div>
-            <span className="text-xl font-bold">Lumio</span>
-          </Link>
-          <p className="text-sm text-muted-foreground">Make every post shine</p>
-        </div>
 
-        <Card>
+        <Card className="card-modern backdrop-blur-sm border-border/30">
           <CardHeader className="text-center">
             <CardTitle>
               {mode === 'login' && 'Welcome Back'}
@@ -444,14 +455,9 @@ export function AuthPage() {
             </div>
           </CardContent>
         </Card>
-
-        <div className="text-center mt-6">
-          <Link to="/" className="text-sm text-muted-foreground hover:text-primary flex items-center justify-center">
-            <ArrowLeft className="h-4 w-4 mr-1" />
-            Back to Home
-          </Link>
+          </div>
         </div>
-      </div>
+      </main>
     </div>
   );
 }

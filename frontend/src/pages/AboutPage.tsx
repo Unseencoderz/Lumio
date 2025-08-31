@@ -91,7 +91,7 @@ export function AboutPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Sparkles className="h-4 w-4" />
               </div>
-              <span className="text-xl font-bold">Post-Polish</span>
+              <span className="text-xl font-bold">Lumio</span>
             </Link>
             
             <Link to="/">
@@ -109,13 +109,13 @@ export function AboutPage() {
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             <Badge variant="secondary" className="mb-4">
-              About Post-Polish
+              About Lumio
             </Badge>
             <h1 className="text-4xl font-bold mb-6">
               Revolutionizing Content Creation with AI
             </h1>
             <p className="text-xl text-muted-foreground mb-8">
-              Post-Polish is an advanced AI-powered platform that transforms your documents 
+              Lumio is an advanced AI-powered platform that transforms your documents 
               into engaging social media content. Built with cutting-edge technology and 
               designed for creators, marketers, and businesses who want to maximize their 
               social media impact.
@@ -137,7 +137,7 @@ export function AboutPage() {
               </p>
               <p className="text-lg text-muted-foreground mb-6">
                 Whether you're a content creator, marketer, educator, or business owner, 
-                Post-Polish empowers you to transform your ideas and documents into 
+                Lumio empowers you to transform your ideas and documents into 
                 engaging content that resonates with your audience across all social platforms.
               </p>
               <Link to="/dashboard">
@@ -194,7 +194,7 @@ export function AboutPage() {
       <section className="py-16">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold mb-4">How Post-Polish Works</h2>
+            <h2 className="text-3xl font-bold mb-4">How Lumio Works</h2>
             <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
               Our intelligent processing pipeline transforms your documents into 
               optimized social media content in just a few simple steps.
@@ -266,7 +266,7 @@ export function AboutPage() {
             </div>
             
             <p className="text-lg text-muted-foreground mb-6">
-              <strong>Note:</strong> Post-Polish is proudly powered by Google Gemini Pro for 
+              <strong>Note:</strong> Lumio is proudly powered by Google Gemini Pro for 
               advanced AI capabilities and Tesseract for reliable OCR fallback, ensuring 
               the highest quality text extraction and analysis.
             </p>
@@ -274,7 +274,7 @@ export function AboutPage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/dashboard">
                 <Button size="lg">
-                  Try Post-Polish Now
+                  Try Lumio Now
                   <Sparkles className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
@@ -301,10 +301,10 @@ export function AboutPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Sparkles className="h-4 w-4" />
               </div>
-              <span className="text-xl font-bold">Post-Polish</span>
+              <span className="text-xl font-bold">Lumio</span>
             </Link>
             <div className="flex items-center space-x-6 text-sm text-muted-foreground">
-              <span>© 2024 Post-Polish. All rights reserved.</span>
+              <span>© 2024 Lumio. All rights reserved.</span>
               <span>Powered by Google Gemini Pro & Tesseract</span>
             </div>
           </div>

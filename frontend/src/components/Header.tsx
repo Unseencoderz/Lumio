@@ -35,7 +35,7 @@ export function Header() {
               <Sparkles className="h-4 w-4" />
             </div>
             <div>
-              <span className="text-xl font-bold">Post-Polish</span>
+              <span className="text-xl font-bold">Lumio</span>
               <p className="text-xs text-muted-foreground">Make every post shine</p>
             </div>
           </Link>

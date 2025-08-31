@@ -94,7 +94,7 @@ export function AuthPage() {
       await signup(data.email, data.password, data.name);
       toast({
         title: 'Account created!',
-        description: 'Welcome to Post-Polish. You can now start creating content.',
+        description: 'Welcome to Lumio. You can now start creating content.',
       });
       navigate('/dashboard');
     } catch (error) {
@@ -161,7 +161,7 @@ export function AuthPage() {
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Sparkles className="h-4 w-4" />
             </div>
-            <span className="text-xl font-bold">Post-Polish</span>
+            <span className="text-xl font-bold">Lumio</span>
           </Link>
           <p className="text-sm text-muted-foreground">Make every post shine</p>
         </div>
@@ -175,7 +175,7 @@ export function AuthPage() {
             </CardTitle>
             <CardDescription>
               {mode === 'login' && 'Sign in to your account to continue'}
-              {mode === 'signup' && 'Join Post-Polish and start creating amazing content'}
+              {mode === 'signup' && 'Join Lumio and start creating amazing content'}
               {mode === 'reset' && 'Enter your email to receive reset instructions'}
             </CardDescription>
           </CardHeader>

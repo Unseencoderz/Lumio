@@ -68,7 +68,7 @@ export function LandingPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Sparkles className="h-4 w-4" />
               </div>
-              <span className="text-xl font-bold">Post-Polish</span>
+              <span className="text-xl font-bold">Lumio</span>
             </div>
             
             <nav className="flex items-center space-x-6">
@@ -158,7 +158,7 @@ export function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="grid lg:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-3xl font-bold mb-6">Why Choose Post-Polish?</h2>
+              <h2 className="text-3xl font-bold mb-6">Why Choose Lumio?</h2>
               <p className="text-lg text-muted-foreground mb-8">
                 Stop wasting time manually creating social media content. Let AI do the heavy 
                 lifting while you focus on what matters most - growing your audience and engagement.
@@ -178,7 +178,7 @@ export function LandingPage() {
                 <Globe className="h-16 w-16 text-primary mx-auto mb-6" />
                 <h3 className="text-2xl font-bold mb-4">Ready to Get Started?</h3>
                 <p className="text-muted-foreground mb-6">
-                  Join thousands of content creators who are already using Post-Polish 
+                  Join thousands of content creators who are already using Lumio 
                   to create amazing social media content.
                 </p>
                 <Link to="/dashboard">
@@ -222,7 +222,7 @@ export function LandingPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                 <Sparkles className="h-4 w-4" />
               </div>
-              <span className="text-xl font-bold">Post-Polish</span>
+              <span className="text-xl font-bold">Lumio</span>
             </div>
             <div className="flex items-center space-x-6 text-sm text-muted-foreground">
               <Link to="/about" className="hover:text-primary transition-colors">

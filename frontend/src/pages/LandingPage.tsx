@@ -89,10 +89,7 @@ export function LandingPage() {
             <div className="absolute top-40 right-20 w-24 h-24 bg-accent-violet/10 rounded-full blur-2xl animate-pulse delay-1000" />
             <div className="absolute bottom-20 left-1/4 w-20 h-20 bg-success/10 rounded-full blur-xl animate-pulse delay-2000" />
             
-            <Badge variant="secondary" className="mb-6 bg-accent-gradient text-white border-0 shadow-glow-cyan">
-              <Brain className="h-4 w-4 mr-2" />
-              Powered by Google Gemini Pro
-            </Badge>
+          
             
             <h1 className="text-6xl md:text-7xl font-bold tracking-tight mb-8 bg-gradient-to-r from-text via-accent-cyan to-accent-violet bg-clip-text text-transparent">
               Make every post{' '}

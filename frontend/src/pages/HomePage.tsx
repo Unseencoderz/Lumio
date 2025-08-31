@@ -73,22 +73,7 @@ export function HomePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-8">
-      {/* Hero Section */}
-      <div className="text-center space-y-4">
-        <div className="flex items-center justify-center space-x-2 mb-4">
-          <Sparkles className="h-8 w-8 text-primary" />
-          <h1 className="text-4xl font-bold text-gradient">Lumio</h1>
-        </div>
-        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Transform your documents into engaging social media content with AI-powered 
-          text extraction and optimization.
-        </p>
-        <div className="flex items-center justify-center space-x-2">
-          <Badge variant="secondary">AI-Powered</Badge>
-          <Badge variant="secondary">Multi-Platform</Badge>
-          <Badge variant="secondary">Real-time</Badge>
-        </div>
-      </div>
+      
 
       {/* Main Content */}
       <div className="space-y-6">

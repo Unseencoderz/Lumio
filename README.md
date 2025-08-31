@@ -1,8 +1,8 @@
-# Lumio
+# Post Polish (Lumio)
 
-  AI-powered document text extraction and social media posts optimization platform. Transform your PDFs and images into engaging social media content with advanced AI analysis.
+AI-powered document text extraction and social media optimization platform. Transform your PDFs and images into engaging social media content with advanced AI analysis and Firebase authentication.
 
-![Lumio Demo](https://via.placeholder.com/800x400/4f46e5/ffffff?text=Lumio+Demo)
+![Post Polish Demo](https://via.placeholder.com/800x400/4f46e5/ffffff?text=Post+Polish+Demo)
 
 ## 🚀 Features
 
@@ -10,11 +10,14 @@
 - **AI-Powered Analysis**: Get detailed insights on readability, sentiment, and engagement potential
 - **Platform Optimization**: Generate optimized content for Twitter, Instagram, and LinkedIn
 - **Smart Hashtags**: AI-generated hashtags with relevance scores and rationale
-- **Real-time Processing**: Background job processing with real-time progress updates
+- **Real-time Processing**: Background job processing with BullMQ and Redis
 - **PII Detection**: Automatic detection and redaction of personally identifiable information
-- **Caching**: Intelligent caching to reduce API costs and improve performance
+- **Firebase Authentication**: Secure user authentication with Google and GitHub OAuth
+- **User History**: Track and manage previous analysis jobs (authenticated users)
+- **Caching**: Intelligent Redis-based caching to reduce API costs and improve performance
 - **Drag & Drop Interface**: Modern, intuitive file upload with progress tracking
 - **Direct Text Analysis**: Analyze text directly without file upload
+- **Responsive Design**: Beautiful UI built with shadcn/ui and Tailwind CSS
 
 ## 🛠 Tech Stack
 
@@ -26,6 +29,8 @@
 - **shadcn/ui** components with Tailwind CSS
 - **React Router** for navigation
 - **React Dropzone** for file uploads
+- **Firebase SDK** for authentication
+- **Axios** for API communication
 
 ### Backend
 - **Node.js** with Express and TypeScript
@@ -33,21 +38,24 @@
 - **Google Gemini Pro** for AI processing
 - **Tesseract.js** for OCR fallback
 - **Sharp** for image processing
-- **PDF.js** for PDF rendering
+- **PDF.js** for PDF text extraction
+- **Firebase Admin SDK** for authentication
 - **Multer** for file uploads
 - **Pino** for structured logging
-- **Sentry** for error tracking
+- **Sentry** for error tracking (optional)
+- **Helmet** for security headers
 
 ### Infrastructure
-- **Redis** for caching and job queues (local or cloud)
-- **Supabase Storage** support (optional)
-- **GitHub Actions** CI/CD
+- **Redis** for caching and job queues
+- **Firebase** for authentication and optional storage
+- **Local file storage** with configurable Firebase Storage fallback
 
 ## 📋 Prerequisites
 
 - **Node.js 18+** 
 - **Redis server**
 - **Google Gemini Pro API key**
+- **Firebase project** (for authentication)
 
 ## 🏃‍♂️ Quick Start
 
@@ -55,30 +63,60 @@
 
 ```bash
 git clone <repository-url>
-cd Lumio
+cd post-polish
 ```
 
 ### 2. Environment Setup
 
-Copy the environment template and configure:
-
+#### Backend Environment (.env in root)
 ```bash
-cp .env.example .env
-```
-
-Edit `.env` with your configuration:
-
-```env
-# Required
+# Required - AI Service
 GEMINI_API_KEY=your_gemini_api_key_here
 
-# Optional - defaults provided
+# Firebase Admin (Required for authentication)
+FIREBASE_PROJECT_ID=your_project_id
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+
+# Optional - Server Configuration
 NODE_ENV=development
 PORT=3001
 CORS_ORIGIN=http://localhost:3000
+
+# Optional - Redis Configuration
 REDIS_URL=redis://localhost:6379
+# Or for cloud Redis:
+# REDIS_HOST=your-redis-host
+# REDIS_PORT=6379
+# REDIS_USERNAME=default
+# REDIS_PASSWORD=your-password
+
+# Optional - File Processing
 MAX_FILE_SIZE_BYTES=10485760
+MAX_PDF_PAGES=10
+JOB_TTL_SECONDS=86400
+
+# Optional - Rate Limiting
 RATE_LIMIT_UPLOADS_PER_HOUR=10
+
+# Optional - Firebase Storage (if using cloud storage)
+USE_FIREBASE_STORAGE=false
+FIREBASE_STORAGE_BUCKET=your-bucket-name
+
+# Optional - Monitoring
+SENTRY_DSN=your_sentry_dsn
+LOG_LEVEL=info
+```
+
+#### Frontend Environment (.env in frontend/)
+```bash
+# Firebase Configuration (Required)
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
+VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
 ```
 
 ### 3. Start Redis
@@ -101,6 +139,7 @@ docker run -d -p 6379:6379 redis:7-alpine
 **Quick Start (Recommended):**
 ```bash
 # Use the provided startup script (checks Redis, installs deps, starts servers)
+chmod +x start-dev.sh
 ./start-dev.sh
 ```
 
@@ -135,15 +174,22 @@ cd frontend && npm run preview
 ### Project Structure
 
 ```
-Lumio/
+post-polish/
 ├── frontend/                # React frontend application
 │   ├── src/
 │   │   ├── components/      # Reusable UI components
 │   │   │   └── ui/          # shadcn/ui components
+│   │   ├── contexts/        # React contexts (Auth)
 │   │   ├── hooks/           # Custom React hooks
-│   │   ├── lib/             # Utilities and API client
+│   │   ├── lib/             # Utilities, API client, Firebase config
 │   │   ├── pages/           # Page components
-│   │   └── __tests__/       # Frontend tests
+│   │   │   ├── LandingPage.tsx    # Public landing page
+│   │   │   ├── AuthPage.tsx       # Login/signup
+│   │   │   ├── HomePage.tsx       # Main dashboard
+│   │   │   ├── AnalyzePage.tsx    # Text analysis
+│   │   │   ├── HistoryPage.tsx    # User history
+│   │   │   └── AboutPage.tsx      # About page
+│   │   └── main.tsx         # App entry point
 │   ├── public/              # Static assets
 │   ├── index.html           # HTML template
 │   ├── vite.config.ts       # Vite configuration
@@ -151,21 +197,30 @@ Lumio/
 ├── backend/                 # Express backend API
 │   ├── src/
 │   │   ├── config/          # Configuration management
-│   │   ├── middleware/      # Express middleware
+│   │   ├── middleware/      # Express middleware (auth, rate limiting)
 │   │   ├── routes/          # API route handlers
+│   │   │   ├── upload.ts    # File upload endpoint
+│   │   │   ├── analyze.ts   # Text analysis endpoint
+│   │   │   ├── jobs.ts      # Job status/results
+│   │   │   └── history.ts   # User history (authenticated)
 │   │   ├── services/        # Business logic services
+│   │   │   ├── gemini.ts    # Google Gemini AI integration
+│   │   │   ├── ocr.ts       # Tesseract OCR service
+│   │   │   ├── pdf.ts       # PDF processing
+│   │   │   ├── firebase.ts  # Firebase Admin SDK
+│   │   │   └── textAnalysis.ts # Text analysis logic
 │   │   ├── workers/         # Background job processors
+│   │   │   └── processJob.ts # Document processing worker
 │   │   ├── queues/          # Job queue configuration
 │   │   ├── types/           # TypeScript type definitions
 │   │   ├── utils/           # Utility functions
-│   │   └── __tests__/       # Backend tests
+│   │   └── server.ts        # Express server setup
 │   ├── uploads/             # Temporary file storage
+│   ├── eng.traineddata      # Tesseract language data
 │   ├── tsconfig.json        # TypeScript configuration
 │   └── package.json         # Backend dependencies
-├── .github/workflows/       # CI/CD pipeline
 ├── start-dev.sh             # Development startup script
 ├── package.json             # Root workspace configuration
-├── .env.example             # Environment template
 └── README.md                # This file
 ```
 
@@ -180,36 +235,34 @@ npm run type-check       # Type check all code
 
 # Backend specific
 npm run dev:backend      # Start backend in development
-npm run build --workspace=backend
+cd backend && npm run build
 
 # Frontend specific  
 npm run dev:frontend     # Start frontend in development
-npm run build --workspace=frontend
+cd frontend && npm run build
 ```
 
-### Development Workflow
+### Authentication Flow
 
-1. **Start Development Environment:**
-   ```bash
-   ./start-dev.sh
-   ```
-
-2. **Make Changes:**
-   - Frontend changes auto-reload at http://localhost:3000
-   - Backend changes auto-reload at http://localhost:3001
-
-3. **Check Code Quality:**
-   ```bash
-   npm run lint
-   npm run type-check
-   ```
+1. **Public Access**: Landing page, about page, and direct text analysis
+2. **Protected Routes**: Dashboard, file upload, history require authentication
+3. **Firebase Auth**: Email/password, Google OAuth, GitHub OAuth
+4. **Backend Auth**: JWT token verification via Firebase Admin SDK
 
 ## 📡 API Documentation
+
+### Authentication
+Most endpoints accept optional authentication. Authenticated requests include user context for history tracking.
+
+```http
+Authorization: Bearer <firebase-id-token>
+```
 
 ### File Upload
 ```http
 POST /api/upload
 Content-Type: multipart/form-data
+Authorization: Bearer <token> (optional)
 
 # Request Body
 file: <PDF or image file>
@@ -225,7 +278,7 @@ file: <PDF or image file>
 
 ### Job Status Polling
 ```http
-GET /api/status/:jobId
+GET /api/jobs/:jobId/status
 
 # Response 200
 {
@@ -238,7 +291,7 @@ GET /api/status/:jobId
 
 ### Job Results
 ```http
-GET /api/result/:jobId
+GET /api/jobs/:jobId/result
 
 # Response 200
 {
@@ -263,8 +316,7 @@ GET /api/result/:jobId
     "engagementScore": 0.75,
     "engagementTips": [
       "Add questions to encourage interaction",
-      "Use emojis to make content more engaging",
-      "Include a clear call-to-action"
+      "Use emojis to make content more engaging"
     ],
     "improvedText": {
       "twitter": "Optimized content for Twitter (≤280 chars)",
@@ -287,6 +339,7 @@ GET /api/result/:jobId
 ```http
 POST /api/analyze
 Content-Type: application/json
+Authorization: Bearer <token> (optional)
 
 # Request Body
 {
@@ -302,24 +355,35 @@ Content-Type: application/json
 }
 ```
 
-### Hashtag Generation Only
+### User History (Authenticated)
 ```http
-POST /api/hashtags
-Content-Type: application/json
-
-# Request Body
-{
-  "text": "Your text content here..."
-}
+GET /api/history
+Authorization: Bearer <token>
 
 # Response 200
 {
-  "hashtags": [
-    { 
-      "tag": "#example", 
-      "rationale": "Relevant to content theme" 
+  "jobs": [
+    {
+      "id": "job-uuid",
+      "filename": "document.pdf",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "status": "done",
+      // ... job details
     }
   ]
+}
+```
+
+### Queue Statistics
+```http
+GET /api/jobs/stats
+
+# Response 200
+{
+  "waiting": 0,
+  "active": 1,
+  "completed": 42,
+  "failed": 0
 }
 ```
 
@@ -335,22 +399,28 @@ GET /health
 }
 ```
 
-### Queue Statistics
-```http
-GET /api/queue/stats
-
-# Response 200
-{
-  "waiting": 0,
-  "active": 1,
-  "completed": 42,
-  "failed": 0
-}
-```
-
-
-
 ## 🚀 Deployment
+
+### Environment Variables Reference
+
+| Variable | Description | Default | Required |
+|----------|-------------|---------|----------|
+| `NODE_ENV` | Environment mode | `development` | No |
+| `PORT` | Backend server port | `3001` | No |
+| `CORS_ORIGIN` | Frontend URL for CORS | `http://localhost:3000` | No |
+| `GEMINI_API_KEY` | Google Gemini Pro API key | - | **Yes** |
+| `FIREBASE_PROJECT_ID` | Firebase project ID | - | **Yes** |
+| `FIREBASE_PRIVATE_KEY` | Firebase service account private key | - | **Yes** |
+| `FIREBASE_CLIENT_EMAIL` | Firebase service account email | - | **Yes** |
+| `REDIS_URL` | Redis connection URL | `redis://localhost:6379` | No |
+| `USE_FIREBASE_STORAGE` | Enable Firebase Storage | `false` | No |
+| `FIREBASE_STORAGE_BUCKET` | Firebase Storage bucket name | - | If using Firebase Storage |
+| `MAX_FILE_SIZE_BYTES` | Max upload size | `10485760` (10MB) | No |
+| `JOB_TTL_SECONDS` | Job result cache TTL | `86400` (24h) | No |
+| `MAX_PDF_PAGES` | Max PDF pages to process | `10` | No |
+| `RATE_LIMIT_UPLOADS_PER_HOUR` | Upload rate limit per IP | `10` | No |
+| `SENTRY_DSN` | Sentry error tracking DSN | - | No |
+| `LOG_LEVEL` | Logging level | `info` | No |
 
 ### Production Deployment
 
@@ -359,8 +429,8 @@ GET /api/queue/stats
    # Set production environment variables
    export NODE_ENV=production
    export GEMINI_API_KEY=your_production_key
-   export REDIS_URL=redis://your-redis-server:6379
-   export SENTRY_DSN=your_sentry_dsn
+   export FIREBASE_PROJECT_ID=your_project_id
+   # ... other required variables
    ```
 
 2. **Install Dependencies:**
@@ -381,114 +451,23 @@ GET /api/queue/stats
    # Start Backend
    cd backend && npm start
 
-   # Serve Frontend with a web server
-   # Option 1: Using serve (npm install -g serve)
+   # Serve Frontend
    serve -s frontend/dist -l 3000
-
-   # Option 2: Using nginx
-   # Copy frontend/dist/* to your nginx web root
    ```
-
-### Production Considerations
-
-- **Process Manager**: Use PM2 or similar for the backend
-- **Reverse Proxy**: Use nginx or Apache for the frontend
-- **SSL/TLS**: Configure HTTPS certificates
-- **Environment Variables**: Use proper secrets management
-- **Monitoring**: Set up health checks and alerting
-- **Backup**: Regular Redis data backups
-
-### Example PM2 Configuration
-
-```javascript
-// ecosystem.config.js
-module.exports = {
-  apps: [{
-    name: 'Lumio-backend',
-    cwd: './backend',
-    script: 'npm',
-    args: 'start',
-    instances: 1,
-    autorestart: true,
-    watch: false,
-    max_memory_restart: '1G',
-    env: {
-      NODE_ENV: 'production',
-      PORT: 3001
-    }
-  }]
-};
-```
-
-### Example Nginx Configuration
-
-```nginx
-server {
-    listen 80;
-    server_name your-domain.com;
-    root /path/to/Lumio/frontend/dist;
-    index index.html;
-
-    # Frontend routes
-    location / {
-        try_files $uri $uri/ /index.html;
-    }
-
-    # API proxy
-    location /api/ {
-        proxy_pass http://localhost:3001/api/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-        proxy_cache_bypass $http_upgrade;
-    }
-
-    # Security headers
-    add_header X-Frame-Options "SAMEORIGIN" always;
-    add_header X-XSS-Protection "1; mode=block" always;
-    add_header X-Content-Type-Options "nosniff" always;
-}
-```
 
 ## 🔒 Security Features
 
+- **Firebase Authentication**: Secure user authentication with multiple providers
+- **JWT Token Verification**: Backend validates Firebase ID tokens
 - **File Validation**: Magic byte validation and MIME type checking
 - **Rate Limiting**: Configurable upload rate limits per IP address
-- **PII Detection**: Automatic detection and redaction of sensitive information
+- **PII Detection**: Automatic detection of sensitive information
 - **Input Sanitization**: Filename sanitization and content validation
 - **CORS Protection**: Configurable cross-origin resource sharing
-- **Security Headers**: Comprehensive HTTP security headers
+- **Security Headers**: Comprehensive HTTP security headers via Helmet
 - **Error Handling**: Secure error messages without information leakage
 
-## ⚙️ Configuration
-
-### Environment Variables
-
-| Variable | Description | Default | Required |
-|----------|-------------|---------|----------|
-| `NODE_ENV` | Environment mode | `development` | No |
-| `PORT` | Backend server port | `3001` | No |
-| `CORS_ORIGIN` | Frontend URL for CORS | `http://localhost:3000` | No |
-| `GEMINI_API_KEY` | Google Gemini Pro API key | - | **Yes** |
-| `REDIS_URL` | Redis connection URL | `redis://localhost:6379` | No |
-| `REDIS_HOST` | Redis host (for cloud Redis) | - | No |
-| `REDIS_PORT` | Redis port (for cloud Redis) | - | No |
-| `REDIS_USERNAME` | Redis username (for cloud Redis) | `default` | No |
-| `REDIS_PASSWORD` | Redis password (for cloud Redis) | - | No |
-| `USE_SUPABASE` | Enable Supabase storage | `false` | No |
-| `SUPABASE_URL` | Supabase project URL | - | If USE_SUPABASE=true |
-| `SUPABASE_SERVICE_KEY` | Supabase service role key | - | If USE_SUPABASE=true |
-| `SUPABASE_BUCKET` | Supabase storage bucket | `uploads` | No |
-| `MAX_FILE_SIZE_BYTES` | Max upload size | `10485760` (10MB) | No |
-| `JOB_TTL_SECONDS` | Job result cache TTL | `86400` (24h) | No |
-| `MAX_PDF_PAGES` | Max PDF pages to process | `10` | No |
-| `RATE_LIMIT_UPLOADS_PER_HOUR` | Upload rate limit | `10` | No |
-| `SENTRY_DSN` | Sentry error tracking | - | No |
-| `LOG_LEVEL` | Logging level | `info` | No |
+## 🔧 Configuration
 
 ### File Processing Limits
 
@@ -498,29 +477,16 @@ server {
 - **Text Analysis Limit**: 50,000 characters for direct analysis
 - **Rate Limiting**: 10 uploads per hour per IP (configurable)
 
-### AI Processing Configuration
+### AI Processing
 
-The application uses Google Gemini Pro with specific prompts:
+The application uses Google Gemini Pro for intelligent text analysis with Tesseract.js as a fallback OCR engine. Processing includes:
 
-**OCR Prompt:**
-```
-You are a high-accuracy OCR engine. Extract clean plain text from the provided image. 
-Preserve paragraphs and line breaks. If text is partially unreadable, include "[UNREADABLE]" 
-with confidence per page. Output strictly JSON:
-{ "text": "full extracted text", "lines": ["..."], "confidence": 0.0-1.0 }
-```
-
-**Analysis Prompt:**
-```
-You are an expert social media editor. Given the "text" input below, return a JSON object with:
-- sentiment: { label, score }
-- readability: { fleschKincaidGrade, fleschScore }
-- hashtags: array of up to 10 { tag, score, rationale }
-- emojiSuggestions: array of up to 5 emojis
-- engagementTips: array of 3 concise tips (max 20 words each)
-- improvedText: { twitter: string<=280, instagram: string<=2200, linkedin: string }
-Return only valid JSON.
-```
+- **Text Extraction**: OCR from images, text layer extraction from PDFs
+- **Sentiment Analysis**: Positive/neutral/negative sentiment scoring
+- **Readability Analysis**: Flesch-Kincaid grade level assessment
+- **Hashtag Generation**: AI-powered hashtag suggestions with rationale
+- **Platform Optimization**: Content optimization for Twitter, Instagram, LinkedIn
+- **Engagement Analysis**: Tips and scoring for social media engagement
 
 ## 📊 Monitoring
 
@@ -531,7 +497,7 @@ Return only valid JSON.
 curl http://localhost:3001/health
 
 # Queue statistics
-curl http://localhost:3001/api/queue/stats
+curl http://localhost:3001/api/jobs/stats
 ```
 
 ### Logging
@@ -539,14 +505,11 @@ curl http://localhost:3001/api/queue/stats
 The application uses structured logging with Pino:
 
 ```bash
-# View logs in development
+# Development logs
 npm run dev
 
-# View backend logs specifically
-npm run dev:backend
-
 # Production logging (JSON format)
-NODE_ENV=production npm run dev:backend
+NODE_ENV=production npm start
 ```
 
 ### Error Tracking
@@ -557,13 +520,6 @@ Configure Sentry for production error tracking:
 SENTRY_DSN=your_sentry_dsn_here
 ```
 
-### Performance Metrics
-
-- **Caching**: Redis-based caching reduces API calls
-- **Job Processing**: Background processing prevents blocking
-- **Rate Limiting**: Protects against abuse
-- **File Validation**: Early rejection of invalid files
-
 ## 🤝 Contributing
 
 ### Development Setup
@@ -572,13 +528,14 @@ SENTRY_DSN=your_sentry_dsn_here
    ```bash
    git fork <repository>
    git clone <your-fork>
-   cd Lumio
+   cd post-polish
    ```
 
 2. **Set Up Environment:**
    ```bash
-   cp .env.example .env
-   # Add your GEMINI_API_KEY
+   # Copy environment templates and configure
+   # Backend .env in root directory
+   # Frontend .env in frontend/ directory
    ```
 
 3. **Install Dependencies:**
@@ -594,28 +551,11 @@ SENTRY_DSN=your_sentry_dsn_here
 ### Development Guidelines
 
 - **TypeScript**: Use strict TypeScript throughout
-- **Testing**: Write tests for new features
+- **Authentication**: Test both authenticated and unauthenticated flows
+- **Error Handling**: Implement proper error boundaries and logging
 - **Code Style**: Follow ESLint and Prettier configurations
-- **Commits**: Use conventional commit messages
+- **Testing**: Write tests for new features
 - **Documentation**: Update README and inline documentation
-
-### Pull Request Process
-
-1. Create a feature branch: `git checkout -b feature/amazing-feature`
-2. Make your changes with tests
-3. Ensure all tests pass: `npm test`
-4. Ensure code quality: `npm run lint && npm run type-check`
-5. Commit changes: `git commit -m 'feat: add amazing feature'`
-6. Push to branch: `git push origin feature/amazing-feature`
-7. Open a Pull Request
-
-### Code Style
-
-- Use TypeScript strict mode
-- Follow existing code patterns
-- Write meaningful commit messages
-- Add JSDoc comments for complex functions
-- Keep functions small and focused
 
 ## 🆘 Troubleshooting
 
@@ -626,57 +566,30 @@ SENTRY_DSN=your_sentry_dsn_here
 # Check if Redis is running
 redis-cli ping
 # Should return "PONG"
+```
 
-# Start Redis if not running
-brew services start redis  # macOS
-sudo systemctl start redis-server  # Linux
+**Firebase Configuration Error:**
+```bash
+# Verify Firebase config in both backend and frontend .env files
+# Ensure Firebase project has Authentication enabled
 ```
 
 **Gemini API Key Error:**
 ```bash
 # Check if API key is set
 grep GEMINI_API_KEY .env
-# Should show: GEMINI_API_KEY=your_key_here
-```
-
-**Port Already in Use:**
-```bash
-# Find process using port 3001
-lsof -i :3001
-# Kill the process
-kill -9 <PID>
+# Verify API key is valid and has Gemini Pro access
 ```
 
 **File Upload Issues:**
 - Check file size (max 10MB by default)
 - Verify file format (PDF, JPEG, PNG, TIFF, BMP, WebP)
-- Check available disk space
+- Ensure uploads/ directory is writable
 
-**Build Errors:**
-```bash
-# Clear node_modules and reinstall
-rm -rf node_modules package-lock.json
-npm install
-
-# Clear build cache
-rm -rf frontend/dist backend/dist
-npm run build
-```
-
-### Debug Mode
-
-Enable debug logging:
-
-```bash
-LOG_LEVEL=debug npm run dev:backend
-```
-
-### Getting Help
-
-- **Documentation**: Check this README and inline code comments
-- **Issues**: Open an issue on GitHub with detailed information
-- **Discussions**: Use GitHub Discussions for questions
-- **Logs**: Check console output and log files for error details
+**Authentication Issues:**
+- Verify Firebase configuration matches between frontend and backend
+- Check that Firebase Authentication is enabled in Firebase Console
+- Ensure service account has proper permissions
 
 ## 📄 License
 
@@ -685,6 +598,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - **Google Gemini Pro** for advanced AI capabilities
+- **Firebase** for authentication and optional storage
 - **Tesseract.js** for reliable OCR fallback
 - **shadcn/ui** for beautiful, accessible components
 - **React** and **Node.js** ecosystems
@@ -692,6 +606,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Built with ❤️ using modern web technologies**
-
-Ready to transform your documents into engaging social media content? Get started with Lumio today!
+**Transform your documents into engaging social media content with AI-powered analysis and optimization.**

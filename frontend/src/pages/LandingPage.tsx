@@ -64,9 +64,7 @@ export function LandingPage() {
   ];
 
   const techStack = [
-    { name: 'Google Gemini Pro', icon: '/gemini.png', color: 'text-accent-cyan' },
-    { name: 'GitHub', icon: '/github.png', color: 'text-accent-violet' },
-    { name: 'Chrome', icon: '/google.png', color: 'text-success' },
+    { name: 'Google Gemini Pro', icon: '/gemini.png', color: 'text-accent-cyan' }
   ];
 
   const stats = [

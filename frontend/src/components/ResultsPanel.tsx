@@ -27,6 +27,11 @@ import {
   TrendingUp,
   Users,
   Zap,
+  Brain,
+  FileText,
+  Image,
+  Target,
+  BarChart3
 } from 'lucide-react';
 
 interface ResultsPanelProps {
@@ -42,11 +47,11 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
 
   if (isLoading) {
     return (
-      <Card>
+      <Card className="card-modern">
         <CardContent className="p-6">
           <div className="flex items-center justify-center space-x-2">
-            <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
-            <span className="text-sm text-muted-foreground">Loading results...</span>
+            <div className="h-4 w-4 animate-spin rounded-full border-2 border-accent-cyan border-t-transparent" />
+            <span className="text-sm text-muted">Loading results...</span>
           </div>
         </CardContent>
       </Card>
@@ -55,9 +60,9 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
 
   if (error) {
     return (
-      <Card className="border-destructive">
+      <Card className="card-modern border-error hover:shadow-glow-accent transition-all duration-300">
         <CardContent className="p-6">
-          <div className="text-center text-destructive">
+          <div className="text-center text-error">
             <p className="font-medium">Failed to load results</p>
             <p className="text-sm mt-1">{error.message}</p>
           </div>
@@ -130,15 +135,17 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card>
+      <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center space-x-2">
-              <Sparkles className="h-5 w-5 text-primary" />
-              <span>Analysis Results</span>
+              <div className="icon-highlight">
+                <Brain className="h-5 w-5 text-accent-cyan" />
+              </div>
+              <span className="text-text">Analysis Results</span>
             </CardTitle>
             <div className="flex items-center space-x-2">
-              <Button variant="outline" size="sm" onClick={handleDownload}>
+              <Button variant="outline" size="sm" onClick={handleDownload} className="border-border hover:bg-surface hover:border-accent-cyan">
                 <Download className="h-4 w-4 mr-2" />
                 Export
               </Button>
@@ -148,34 +155,34 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
-              <p className="text-muted-foreground">Engine</p>
-              <p className="font-medium capitalize">{result.meta.engine.replace('-', ' ')}</p>
+              <p className="text-muted">Engine</p>
+              <p className="font-medium capitalize text-text">{result.meta.engine.replace('-', ' ')}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Processing Time</p>
-              <p className="font-medium">{formatDuration(result.meta.processingTimeMs)}</p>
+              <p className="text-muted">Processing Time</p>
+              <p className="font-medium text-text">{formatDuration(result.meta.processingTimeMs)}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Word Count</p>
-              <p className="font-medium">{result.analysis.wordCount}</p>
+              <p className="text-muted">Word Count</p>
+              <p className="font-medium text-text">{result.analysis.wordCount}</p>
             </div>
             <div>
-              <p className="text-muted-foreground">Reading Grade</p>
-              <p className="font-medium">{result.analysis.readingGrade}</p>
+              <p className="text-muted">Reading Grade</p>
+              <p className="font-medium text-text">{result.analysis.readingGrade}</p>
             </div>
           </div>
           
           {result.meta.piiDetected && (
-            <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-              <p className="text-sm text-yellow-800">
+            <div className="mt-4 p-3 bg-warning/10 border border-warning/20 rounded-md">
+              <p className="text-sm text-warning">
                 ⚠️ PII detected and redacted in the extracted text.
               </p>
             </div>
           )}
           
           {result.meta.partialProcessing && (
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-              <p className="text-sm text-blue-800">
+            <div className="mt-4 p-3 bg-accent-cyan/10 border border-accent-cyan/20 rounded-md">
+              <p className="text-sm text-accent-cyan">
                 📄 Processed {result.meta.pagesProcessed} of {result.meta.totalPages} pages.
               </p>
             </div>
@@ -185,22 +192,24 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
 
       {/* Main Content */}
       <Tabs defaultValue="overview" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="content">Content</TabsTrigger>
-          <TabsTrigger value="social">Social Media</TabsTrigger>
-          <TabsTrigger value="insights">Insights</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 bg-surface border border-border">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-accent-gradient data-[state=active]:text-white">Overview</TabsTrigger>
+          <TabsTrigger value="content" className="data-[state=active]:bg-accent-gradient data-[state=active]:text-white">Content</TabsTrigger>
+          <TabsTrigger value="social" className="data-[state=active]:bg-accent-gradient data-[state=active]:text-white">Social Media</TabsTrigger>
+          <TabsTrigger value="insights" className="data-[state=active]:bg-accent-gradient data-[state=active]:text-white">Insights</TabsTrigger>
         </TabsList>
 
         {/* Overview Tab */}
         <TabsContent value="overview" className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
             {/* Sentiment Analysis */}
-            <Card>
+            <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center space-x-2">
-                  <Heart className="h-4 w-4" />
-                  <span>Sentiment</span>
+                  <div className="icon-highlight">
+                    <Heart className="h-4 w-4 text-accent-violet" />
+                  </div>
+                  <span className="text-text">Sentiment</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -212,7 +221,7 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                     <p className={`font-medium capitalize ${getSentimentColor(result.analysis.sentiment.label)}`}>
                       {result.analysis.sentiment.label}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted">
                       Score: {result.analysis.sentiment.score.toFixed(2)}
                     </p>
                   </div>
@@ -221,27 +230,29 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
             </Card>
 
             {/* Engagement Score */}
-            <Card>
+            <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
               <CardHeader>
                 <CardTitle className="text-lg flex items-center space-x-2">
-                  <TrendingUp className="h-4 w-4" />
-                  <span>Engagement</span>
+                  <div className="icon-highlight">
+                    <TrendingUp className="h-4 w-4 text-success" />
+                  </div>
+                  <span className="text-text">Engagement</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-2xl font-bold">
+                    <span className="text-2xl font-bold text-text">
                       {Math.round(result.analysis.engagementScore * 100)}%
                     </span>
-                    <Badge variant={result.analysis.engagementScore > 0.7 ? 'default' : 'secondary'}>
+                    <Badge variant={result.analysis.engagementScore > 0.7 ? 'default' : 'secondary'} className="bg-accent-gradient text-white border-0">
                       {result.analysis.engagementScore > 0.7 ? 'High' : 
                        result.analysis.engagementScore > 0.4 ? 'Medium' : 'Low'}
                     </Badge>
                   </div>
-                  <div className="w-full bg-secondary rounded-full h-2">
+                  <div className="w-full bg-surface rounded-full h-2 border border-border">
                     <div 
-                      className="bg-primary h-2 rounded-full transition-all duration-300"
+                      className="bg-accent-gradient h-2 rounded-full transition-all duration-300"
                       style={{ width: `${result.analysis.engagementScore * 100}%` }}
                     />
                   </div>
@@ -251,19 +262,21 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
           </div>
 
           {/* Engagement Tips */}
-          <Card>
+          <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
             <CardHeader>
               <CardTitle className="text-lg flex items-center space-x-2">
-                <Zap className="h-4 w-4" />
-                <span>Engagement Tips</span>
+                <div className="icon-highlight">
+                  <Zap className="h-4 w-4 text-accent-cyan" />
+                </div>
+                <span className="text-text">Engagement Tips</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
                 {result.analysis.engagementTips.map((tip, index) => (
                   <li key={index} className="flex items-start space-x-2">
-                    <span className="text-primary mt-1">•</span>
-                    <span className="text-sm">{tip}</span>
+                    <span className="text-accent-cyan mt-1">•</span>
+                    <span className="text-sm text-text">{tip}</span>
                   </li>
                 ))}
               </ul>
@@ -273,17 +286,20 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
 
         {/* Content Tab */}
         <TabsContent value="content" className="space-y-4">
-          <Card>
+          <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle className="flex items-center space-x-2">
-                  <Eye className="h-4 w-4" />
-                  <span>Extracted Text</span>
+                  <div className="icon-highlight">
+                    <Eye className="h-4 w-4 text-accent-violet" />
+                  </div>
+                  <span className="text-text">Extracted Text</span>
                 </CardTitle>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={isEditing ? handleSaveEdit : handleEdit}
+                  className="border-border hover:bg-surface hover:border-accent-cyan"
                 >
                   <Edit3 className="h-4 w-4 mr-2" />
                   {isEditing ? 'Save' : 'Edit'}
@@ -295,18 +311,18 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                 <Textarea
                   value={editableText}
                   onChange={(e) => setEditableText(e.target.value)}
-                  className="min-h-[300px] font-mono text-sm"
+                  className="min-h-[300px] font-mono text-sm bg-surface border-border text-text"
                   placeholder="Edit your text here..."
                 />
               ) : (
                 <div className="relative">
-                  <pre className="whitespace-pre-wrap text-sm bg-muted p-4 rounded-md max-h-96 overflow-y-auto">
+                  <pre className="whitespace-pre-wrap text-sm bg-surface p-4 rounded-md max-h-96 overflow-y-auto text-text border border-border">
                     {result.extractedText}
                   </pre>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="absolute top-2 right-2"
+                    className="absolute top-2 right-2 border-border hover:bg-surface hover:border-accent-cyan"
                     onClick={() => handleCopy(result.extractedText, 'Extracted text')}
                   >
                     <Copy className="h-4 w-4" />
@@ -317,11 +333,13 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
           </Card>
 
           {/* Hashtags */}
-          <Card>
+          <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Hash className="h-4 w-4" />
-                <span>Suggested Hashtags</span>
+                <div className="icon-highlight">
+                  <Hash className="h-4 w-4 text-success" />
+                </div>
+                <span className="text-text">Suggested Hashtags</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -330,7 +348,7 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                   <Badge
                     key={index}
                     variant="outline"
-                    className="cursor-pointer hover:bg-primary hover:text-primary-foreground"
+                    className="cursor-pointer hover:bg-accent-gradient hover:text-white border-border hover:border-accent-cyan transition-all duration-300"
                     onClick={() => handleCopy(hashtag.tag, 'Hashtag')}
                   >
                     {hashtag.tag}
@@ -341,6 +359,7 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                 <Button
                   variant="outline"
                   size="sm"
+                  className="border-border hover:bg-surface hover:border-accent-cyan"
                   onClick={() => handleCopy(
                     result.analysis.hashtags.map(h => h.tag).join(' '),
                     'All hashtags'
@@ -354,9 +373,9 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
           </Card>
 
           {/* Emoji Suggestions */}
-          <Card>
+          <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
             <CardHeader>
-              <CardTitle>Emoji Suggestions</CardTitle>
+              <CardTitle className="text-text">Emoji Suggestions</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex space-x-2">
@@ -365,7 +384,7 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                     key={index}
                     variant="outline"
                     size="sm"
-                    className="text-lg"
+                    className="text-lg border-border hover:bg-surface hover:border-accent-violet"
                     onClick={() => handleCopy(emoji, 'Emoji')}
                   >
                     {emoji}
@@ -379,12 +398,14 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
         {/* Social Media Tab */}
         <TabsContent value="social" className="space-y-4">
           {/* Twitter */}
-          <Card>
+          <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <MessageCircle className="h-4 w-4 text-blue-500" />
-                <span>Twitter/X</span>
-                <Badge variant="outline">{result.analysis.improvedText.twitter.length}/280</Badge>
+                <div className="icon-highlight">
+                  <MessageCircle className="h-4 w-4 text-blue-500" />
+                </div>
+                <span className="text-text">Twitter/X</span>
+                <Badge variant="outline" className="border-border">{result.analysis.improvedText.twitter.length}/280</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -392,12 +413,12 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                 <Textarea
                   value={result.analysis.improvedText.twitter}
                   readOnly
-                  className="min-h-[100px] resize-none"
+                  className="min-h-[100px] resize-none bg-surface border-border text-text"
                 />
                 <Button
                   variant="outline"
                   size="sm"
-                  className="absolute top-2 right-2"
+                  className="absolute top-2 right-2 border-border hover:bg-surface hover:border-accent-cyan"
                   onClick={() => handleCopy(result.analysis.improvedText.twitter, 'Twitter post')}
                 >
                   <Copy className="h-4 w-4" />
@@ -407,12 +428,14 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
           </Card>
 
           {/* Instagram */}
-          <Card>
+          <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Share2 className="h-4 w-4 text-pink-500" />
-                <span>Instagram</span>
-                <Badge variant="outline">{result.analysis.improvedText.instagram.length}/2200</Badge>
+                <div className="icon-highlight">
+                  <Share2 className="h-4 w-4 text-pink-500" />
+                </div>
+                <span className="text-text">Instagram</span>
+                <Badge variant="outline" className="border-border">{result.analysis.improvedText.instagram.length}/2200</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -420,12 +443,12 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                 <Textarea
                   value={result.analysis.improvedText.instagram}
                   readOnly
-                  className="min-h-[150px] resize-none"
+                  className="min-h-[150px] resize-none bg-surface border-border text-text"
                 />
                 <Button
                   variant="outline"
                   size="sm"
-                  className="absolute top-2 right-2"
+                  className="absolute top-2 right-2 border-border hover:bg-surface hover:border-accent-cyan"
                   onClick={() => handleCopy(result.analysis.improvedText.instagram, 'Instagram post')}
                 >
                   <Copy className="h-4 w-4" />
@@ -435,11 +458,13 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
           </Card>
 
           {/* LinkedIn */}
-          <Card>
+          <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <Users className="h-4 w-4 text-blue-700" />
-                <span>LinkedIn</span>
+                <div className="icon-highlight">
+                  <Users className="h-4 w-4 text-blue-700" />
+                </div>
+                <span className="text-text">LinkedIn</span>
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -447,12 +472,12 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                 <Textarea
                   value={result.analysis.improvedText.linkedin}
                   readOnly
-                  className="min-h-[200px] resize-none"
+                  className="min-h-[200px] resize-none bg-surface border-border text-text"
                 />
                 <Button
                   variant="outline"
                   size="sm"
-                  className="absolute top-2 right-2"
+                  className="absolute top-2 right-2 border-border hover:bg-surface hover:border-accent-cyan"
                   onClick={() => handleCopy(result.analysis.improvedText.linkedin, 'LinkedIn post')}
                 >
                   <Copy className="h-4 w-4" />
@@ -465,60 +490,60 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
         {/* Insights Tab */}
         <TabsContent value="insights" className="space-y-4">
           <div className="grid md:grid-cols-2 gap-4">
-            <Card>
+            <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
               <CardHeader>
-                <CardTitle>Content Metrics</CardTitle>
+                <CardTitle className="text-text">Content Metrics</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span>Word Count:</span>
-                  <span className="font-medium">{result.analysis.wordCount}</span>
+                  <span className="text-muted">Word Count:</span>
+                  <span className="font-medium text-text">{result.analysis.wordCount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Reading Grade:</span>
-                  <span className="font-medium">{result.analysis.readingGrade}</span>
+                  <span className="text-muted">Reading Grade:</span>
+                  <span className="font-medium text-text">{result.analysis.readingGrade}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Engagement Score:</span>
-                  <span className="font-medium">
+                  <span className="text-muted">Engagement Score:</span>
+                  <span className="font-medium text-text">
                     {Math.round(result.analysis.engagementScore * 100)}%
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Hashtags Generated:</span>
-                  <span className="font-medium">{result.analysis.hashtags.length}</span>
+                  <span className="text-muted">Hashtags Generated:</span>
+                  <span className="font-medium text-text">{result.analysis.hashtags.length}</span>
                 </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
               <CardHeader>
-                <CardTitle>Processing Info</CardTitle>
+                <CardTitle className="text-text">Processing Info</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <div className="flex justify-between">
-                  <span>AI Engine:</span>
-                  <span className="font-medium capitalize">
+                  <span className="text-muted">AI Engine:</span>
+                  <span className="font-medium text-text capitalize">
                     {result.meta.engine.replace('-', ' ')}
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Processing Time:</span>
-                  <span className="font-medium">
+                  <span className="text-muted">Processing Time:</span>
+                  <span className="font-medium text-text">
                     {formatDuration(result.meta.processingTimeMs)}
                   </span>
                 </div>
                 {result.meta.totalPages && (
                   <div className="flex justify-between">
-                    <span>Pages Processed:</span>
-                    <span className="font-medium">
+                    <span className="text-muted">Pages Processed:</span>
+                    <span className="font-medium text-text">
                       {result.meta.pagesProcessed}/{result.meta.totalPages}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between">
-                  <span>PII Detected:</span>
-                  <span className="font-medium">
+                  <span className="text-muted">PII Detected:</span>
+                  <span className="font-medium text-text">
                     {result.meta.piiDetected ? 'Yes' : 'No'}
                   </span>
                 </div>
@@ -527,23 +552,23 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
           </div>
 
           {/* Top Hashtags with Rationale */}
-          <Card>
+          <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
             <CardHeader>
-              <CardTitle>Hashtag Analysis</CardTitle>
+              <CardTitle className="text-text">Hashtag Analysis</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 {result.analysis.hashtags.slice(0, 5).map((hashtag, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg">
+                  <div key={index} className="flex items-center justify-between p-3 bg-surface rounded-lg border border-border">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
-                        <Badge variant="outline">{hashtag.tag}</Badge>
-                        <span className="text-sm font-medium">
+                        <Badge variant="outline" className="border-border">{hashtag.tag}</Badge>
+                        <span className="text-sm font-medium text-text">
                           Score: {hashtag.score.toFixed(2)}
                         </span>
                       </div>
                       {hashtag.rationale && (
-                        <p className="text-sm text-muted-foreground mt-1">
+                        <p className="text-sm text-muted mt-1">
                           {hashtag.rationale}
                         </p>
                       )}
@@ -551,6 +576,7 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="text-muted hover:text-accent-cyan hover:bg-accent-cyan/10"
                       onClick={() => handleCopy(hashtag.tag, 'Hashtag')}
                     >
                       <Copy className="h-4 w-4" />

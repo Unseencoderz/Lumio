@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useMutation } from '@tanstack/react-query';
-import { Upload, File, AlertCircle } from 'lucide-react';
+import { Upload, File, AlertCircle, FileText, Image, FileImage } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { formatBytes, cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';
@@ -87,15 +87,24 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
     setSelectedFile(null);
   };
 
+  const getFileIcon = (file: File) => {
+    if (file.type === 'application/pdf') {
+      return <FileText className="h-8 w-8 text-accent-cyan" />;
+    }
+    return <Image className="h-8 w-8 text-accent-violet" />;
+  };
+
   return (
     <div className="space-y-4">
-      <Card>
+      <Card className="card-modern">
         <CardContent className="p-6">
           <div
             {...getRootProps()}
             className={cn(
-              'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-colors',
-              isDragActive ? 'border-primary bg-primary/5' : 'border-muted-foreground/25',
+              'border-2 border-dashed rounded-lg p-8 text-center cursor-pointer transition-all duration-300',
+              isDragActive 
+                ? 'border-accent-cyan bg-accent-cyan/5 shadow-glow-cyan' 
+                : 'border-border hover:border-accent-cyan/50 hover:bg-accent-cyan/5',
               uploadMutation.isPending && 'pointer-events-none opacity-50'
             )}
           >
@@ -103,23 +112,23 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
             
             {uploadMutation.isPending ? (
               <div className="space-y-2">
-                <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-                <p className="text-sm text-muted-foreground">Uploading...</p>
+                <div className="mx-auto h-12 w-12 animate-spin rounded-full border-4 border-accent-cyan border-t-transparent" />
+                <p className="text-sm text-muted">Uploading...</p>
               </div>
             ) : (
               <div className="space-y-4">
-                <div className="mx-auto h-12 w-12 text-muted-foreground">
+                <div className="mx-auto h-12 w-12 text-muted group-hover:text-accent-cyan transition-colors duration-300">
                   <Upload className="h-full w-full" />
                 </div>
                 
                 {isDragActive ? (
-                  <p className="text-lg font-medium">Drop the file here</p>
+                  <p className="text-lg font-medium text-accent-cyan">Drop the file here</p>
                 ) : (
                   <div className="space-y-2">
-                    <p className="text-lg font-medium">
+                    <p className="text-lg font-medium text-text">
                       Drag & drop a file here, or click to select
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted">
                       Supports PDF, JPEG, PNG, TIFF, BMP, WebP (max {formatBytes(MAX_FILE_SIZE)})
                     </p>
                   </div>
@@ -131,14 +140,16 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
       </Card>
 
       {selectedFile && (
-        <Card>
+        <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <File className="h-8 w-8 text-primary" />
+                <div className="icon-highlight">
+                  {getFileIcon(selectedFile)}
+                </div>
                 <div>
-                  <p className="font-medium">{selectedFile.name}</p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="font-medium text-text">{selectedFile.name}</p>
+                  <p className="text-sm text-muted">
                     {formatBytes(selectedFile.size)}
                   </p>
                 </div>
@@ -150,6 +161,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
                   size="sm"
                   onClick={removeFile}
                   disabled={uploadMutation.isPending}
+                  className="border-border hover:bg-surface hover:border-error text-error hover:text-error"
                 >
                   Remove
                 </Button>
@@ -157,6 +169,7 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
                   onClick={handleUpload}
                   disabled={uploadMutation.isPending}
                   size="sm"
+                  className="btn-glow"
                 >
                   Upload
                 </Button>
@@ -167,13 +180,15 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
       )}
 
       {uploadMutation.isError && (
-        <Card className="border-destructive">
+        <Card className="card-modern border-error hover:shadow-glow-accent transition-all duration-300">
           <CardContent className="p-4">
-            <div className="flex items-center space-x-2 text-destructive">
-              <AlertCircle className="h-4 w-4" />
+            <div className="flex items-center space-x-2 text-error">
+              <div className="icon-highlight">
+                <AlertCircle className="h-4 w-4" />
+              </div>
               <p className="text-sm font-medium">Upload Error</p>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">
+            <p className="mt-1 text-sm text-muted">
               {uploadMutation.error?.message}
             </p>
           </CardContent>

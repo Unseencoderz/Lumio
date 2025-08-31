@@ -4,7 +4,21 @@
 
 @layer base {
   :root {
-    /* Dark theme as default - GitHub/ChatGPT style */
+    /* Modern color palette */
+    --bg: #071028;
+    --surface: #0F1724;
+    --elevated: #111827;
+    --text: #E6F1FB;
+    --muted: #9AA6B2;
+    --border: #1E2A3A;
+    --accent-cyan: #00D4FF;
+    --accent-violet: #7C5CFF;
+    --accent-gradient: linear-gradient(90deg, var(--accent-cyan) 0%, var(--accent-violet) 100%);
+    --success: #2DD4BF;
+    --warning: #FFB020;
+    --error: #FF6B6B;
+
+    /* Legacy support */
     --background: 210 11% 15%;
     --foreground: 213 31% 91%;
     --card: 210 11% 15%;
@@ -33,7 +47,63 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-bg text-text;
+    background: var(--bg);
+    color: var(--text);
+  }
+}
+
+@layer components {
+  /* Modern card styling */
+  .card-modern {
+    @apply bg-surface border border-border rounded-xl;
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent), var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  /* Icon highlight with glow */
+  .icon-highlight {
+    @apply bg-accent-gradient rounded-xl p-3;
+    background: linear-gradient(90deg, rgba(0,212,255,0.06), rgba(124,92,255,0.06));
+    box-shadow: 
+      0 8px 30px rgba(0,212,255,0.08),
+      0 2px 8px rgba(124,92,255,0.06);
+  }
+
+  /* Text highlight for brand names */
+  .highlight-text {
+    @apply bg-accent-gradient bg-clip-text text-transparent;
+    text-shadow: 
+      0 10px 28px rgba(0,212,255,0.06),
+      0 4px 10px rgba(124,92,255,0.04);
+  }
+
+  /* Subtle pulse for CTAs */
+  .pulse-modern {
+    @apply animate-pulse-glow;
+  }
+
+  /* Glowing button */
+  .btn-glow {
+    @apply bg-accent-gradient text-white font-semibold px-6 py-3 rounded-lg transition-all duration-300;
+    box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+  }
+
+  .btn-glow:hover {
+    @apply transform -translate-y-1;
+    box-shadow: 0 12px 35px rgba(0, 212, 255, 0.4);
+  }
+
+  /* Brand icon container */
+  .brand-icon {
+    @apply flex items-center justify-center w-12 h-12 rounded-xl transition-all duration-300;
+    background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(124,92,255,0.1));
+    border: 1px solid rgba(0,212,255,0.2);
+  }
+
+  .brand-icon:hover {
+    @apply transform scale-110;
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.3);
   }
 }
 
@@ -43,15 +113,15 @@
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-secondary;
+  @apply bg-surface;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-muted-foreground/30 rounded-full;
+  @apply bg-muted/30 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-muted-foreground/50;
+  @apply bg-muted/50;
 }
 
 /* Animation for file upload */
@@ -66,13 +136,27 @@
 
 /* Custom focus styles */
 .focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-accent-cyan focus:ring-offset-2 focus:ring-offset-bg;
 }
 
 /* Text gradient */
 .text-gradient {
-  background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--primary)) 50%, hsl(var(--accent)) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  @apply bg-accent-gradient bg-clip-text text-transparent;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-pulse-glow,
+  .animate-glow-pulse,
+  .pulse-modern {
+    animation: none;
+  }
+  
+  .btn-glow:hover {
+    transform: none;
+  }
+  
+  .brand-icon:hover {
+    transform: none;
+  }
 }

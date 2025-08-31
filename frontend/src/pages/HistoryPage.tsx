@@ -1,34 +1,35 @@
-import { useState, useEffect } from 'react';
-import { collection, query, where, orderBy, onSnapshot, doc, deleteDoc } from 'firebase/firestore';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/components/ui/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { db } from '@/lib/firebase';
-import { formatDistanceToNow } from 'date-fns';
+import { HistoryList } from '@/components/HistoryList';
 import { 
   History, 
   FileText, 
-  Trash2, 
   Eye, 
-  Calendar,
+  Copy,
   BarChart3,
   Hash,
   MessageCircle,
   Users,
-  Share2,
-  Copy
+  Share2
 } from 'lucide-react';
 import { copyToClipboard } from '@/lib/utils';
 
-interface AnalysisHistory {
-  id: string;
+interface JobHistoryItem {
+  id: number;
   filename: string;
-  createdAt: any;
-  extractedText: string;
-  analysis: {
+  original_name: string;
+  created_at: string;
+  updated_at: string;
+  status: 'processing' | 'completed' | 'failed';
+  storage_path?: string;
+  extracted_text?: string;
+  analysis?: {
     wordCount: number;
+    readingGrade: number;
     sentiment: {
       label: 'positive' | 'neutral' | 'negative';
       score: number;
@@ -36,63 +37,40 @@ interface AnalysisHistory {
     hashtags: Array<{
       tag: string;
       score: number;
+      rationale?: string;
     }>;
+    emojiSuggestions: string[];
+    engagementScore: number;
+    engagementTips: string[];
     improvedText: {
       twitter: string;
       instagram: string;
       linkedin: string;
     };
   };
+  meta?: {
+    engine: 'gemini-pro' | 'tesseract';
+    processingTimeMs: number;
+    piiDetected?: boolean;
+    partialProcessing?: boolean;
+    pagesProcessed?: number;
+    totalPages?: number;
+  };
+  error_message?: string;
 }
 
 export function HistoryPage() {
-  const [history, setHistory] = useState<AnalysisHistory[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedItem, setSelectedItem] = useState<AnalysisHistory | null>(null);
+  const [selectedJob, setSelectedJob] = useState<JobHistoryItem | null>(null);
   const { currentUser } = useAuth();
   const { toast } = useToast();
 
-  useEffect(() => {
-    if (!currentUser) return;
-
-    const q = query(
-      collection(db, 'analyses'),
-      where('userId', '==', currentUser.uid),
-      orderBy('createdAt', 'desc')
-    );
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const historyData = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as AnalysisHistory[];
-      
-      setHistory(historyData);
-      setLoading(false);
-    });
-
-    return () => unsubscribe();
-  }, [currentUser]);
-
-  const handleDelete = async (id: string) => {
-    try {
-      await deleteDoc(doc(db, 'analyses', id));
-      toast({
-        title: 'Analysis deleted',
-        description: 'The analysis has been removed from your history.',
-      });
-    } catch (error) {
-      toast({
-        title: 'Delete failed',
-        description: 'Failed to delete the analysis.',
-        variant: 'destructive',
-      });
-    }
+  const handleJobSelect = (job: JobHistoryItem) => {
+    setSelectedJob(job);
   };
 
-  const handleCopy = async (text: string, platform: string) => {
+  const handleCopyContent = async (content: string, platform: string) => {
     try {
-      await copyToClipboard(text);
+      await copyToClipboard(content);
       toast({
         title: 'Copied!',
         description: `${platform} content copied to clipboard.`,
@@ -100,250 +78,229 @@ export function HistoryPage() {
     } catch (error) {
       toast({
         title: 'Copy failed',
-        description: 'Failed to copy to clipboard.',
+        description: 'Failed to copy content to clipboard.',
         variant: 'destructive',
       });
     }
   };
 
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment) {
-      case 'positive':
-        return 'text-green-500';
-      case 'negative':
-        return 'text-red-500';
-      default:
-        return 'text-yellow-500';
-    }
-  };
-
-  const getSentimentIcon = (sentiment: string) => {
-    switch (sentiment) {
-      case 'positive':
-        return '😊';
-      case 'negative':
-        return '😔';
-      default:
-        return '😐';
-    }
-  };
-
-  if (loading) {
+  if (!currentUser) {
     return (
-      <div className="max-w-6xl mx-auto">
-        <div className="flex items-center justify-center py-12">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading your analysis history...</p>
-          </div>
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center py-12">
+          <History className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+            Sign in to view your history
+          </h1>
+          <p className="text-gray-600">
+            Your document analysis history will appear here after you sign in.
+          </p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <History className="h-8 w-8 text-primary" />
-          <div>
-            <h1 className="text-3xl font-bold">Analysis History</h1>
-            <p className="text-muted-foreground">
-              View and manage your previous document analyses
-            </p>
-          </div>
-        </div>
-        <Badge variant="secondary">
-          {history.length} {history.length === 1 ? 'analysis' : 'analyses'}
-        </Badge>
+    <div className="max-w-7xl mx-auto">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
+          <History className="h-8 w-8" />
+          Analysis History
+        </h1>
+        <p className="text-gray-600">
+          View and manage your document analysis history.
+        </p>
       </div>
 
-      {history.length === 0 ? (
-        <Card className="text-center py-12">
-          <CardContent>
-            <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No analyses yet</h3>
-            <p className="text-muted-foreground mb-6">
-              Start by uploading a document or analyzing some text to see your history here.
-            </p>
-            <div className="flex gap-4 justify-center">
-              <Button onClick={() => window.location.href = '/dashboard'}>
-                <FileText className="h-4 w-4 mr-2" />
-                Upload Document
-              </Button>
-              <Button variant="outline" onClick={() => window.location.href = '/dashboard/analyze'}>
-                Analyze Text
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid gap-6">
-          {/* History List */}
-          <div className="grid gap-4">
-            {history.map((item) => (
-              <Card key={item.id} className="hover:shadow-md transition-shadow">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* History List */}
+        <div className="lg:col-span-2">
+          <HistoryList onJobSelect={handleJobSelect} />
+        </div>
+
+        {/* Job Details Panel */}
+        <div className="lg:col-span-1">
+          {selectedJob ? (
+            <div className="space-y-4 sticky top-4">
+              <Card>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <FileText className="h-5 w-5 text-primary" />
-                      <div>
-                        <CardTitle className="text-lg">{item.filename}</CardTitle>
-                        <CardDescription className="flex items-center space-x-2">
-                          <Calendar className="h-3 w-3" />
-                          <span>
-                            {formatDistanceToNow(item.createdAt.toDate(), { addSuffix: true })}
-                          </span>
-                        </CardDescription>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => setSelectedItem(selectedItem?.id === item.id ? null : item)}
-                      >
-                        <Eye className="h-4 w-4 mr-2" />
-                        {selectedItem?.id === item.id ? 'Hide' : 'View'}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleDelete(item.id)}
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="h-5 w-5" />
+                    Job Details
+                  </CardTitle>
+                  <CardDescription>
+                    {selectedJob.original_name}
+                  </CardDescription>
                 </CardHeader>
-
-                <CardContent>
-                  {/* Quick Stats */}
-                  <div className="flex items-center space-x-6 mb-4">
-                    <div className="flex items-center space-x-2 text-sm">
-                      <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                      <span>{item.analysis.wordCount} words</span>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="font-medium">Status:</span>
+                      <div className="mt-1">
+                        <Badge 
+                          variant={
+                            selectedJob.status === 'completed' ? 'default' :
+                            selectedJob.status === 'failed' ? 'destructive' : 'secondary'
+                          }
+                        >
+                          {selectedJob.status}
+                        </Badge>
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2 text-sm">
-                      <span className={getSentimentColor(item.analysis.sentiment.label)}>
-                        {getSentimentIcon(item.analysis.sentiment.label)}
-                      </span>
-                      <span className="capitalize">{item.analysis.sentiment.label}</span>
+                    <div>
+                      <span className="font-medium">Engine:</span>
+                      <div className="mt-1 text-gray-600">
+                        {selectedJob.meta?.engine || 'Unknown'}
+                      </div>
                     </div>
-                    <div className="flex items-center space-x-2 text-sm">
-                      <Hash className="h-4 w-4 text-muted-foreground" />
-                      <span>{item.analysis.hashtags.length} hashtags</span>
-                    </div>
+                    {selectedJob.meta?.processingTimeMs && (
+                      <div>
+                        <span className="font-medium">Processing Time:</span>
+                        <div className="mt-1 text-gray-600">
+                          {Math.round(selectedJob.meta.processingTimeMs / 1000)}s
+                        </div>
+                      </div>
+                    )}
+                    {selectedJob.analysis?.wordCount && (
+                      <div>
+                        <span className="font-medium">Word Count:</span>
+                        <div className="mt-1 text-gray-600">
+                          {selectedJob.analysis.wordCount.toLocaleString()}
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Expanded Details */}
-                  {selectedItem?.id === item.id && (
-                    <div className="space-y-6 border-t pt-6">
-                      {/* Platform Content */}
-                      <div className="grid md:grid-cols-3 gap-4">
-                        <Card className="p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-2">
-                              <MessageCircle className="h-4 w-4 text-blue-500" />
-                              <span className="font-semibold">Twitter</span>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleCopy(item.analysis.improvedText.twitter, 'Twitter')}
-                            >
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-3">
-                            {item.analysis.improvedText.twitter}
-                          </p>
-                          <Badge variant="outline" className="mt-2 text-xs">
-                            {item.analysis.improvedText.twitter.length}/280
-                          </Badge>
-                        </Card>
+                  {selectedJob.error_message && (
+                    <div className="p-3 bg-red-50 border border-red-200 rounded-md">
+                      <p className="text-sm text-red-600">
+                        <strong>Error:</strong> {selectedJob.error_message}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
 
-                        <Card className="p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-2">
-                              <Share2 className="h-4 w-4 text-pink-500" />
-                              <span className="font-semibold">Instagram</span>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleCopy(item.analysis.improvedText.instagram, 'Instagram')}
-                            >
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-3">
-                            {item.analysis.improvedText.instagram}
-                          </p>
-                          <Badge variant="outline" className="mt-2 text-xs">
-                            {item.analysis.improvedText.instagram.length}/2200
-                          </Badge>
-                        </Card>
-
-                        <Card className="p-4">
-                          <div className="flex items-center justify-between mb-3">
-                            <div className="flex items-center space-x-2">
-                              <Users className="h-4 w-4 text-blue-700" />
-                              <span className="font-semibold">LinkedIn</span>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => handleCopy(item.analysis.improvedText.linkedin, 'LinkedIn')}
-                            >
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-3">
-                            {item.analysis.improvedText.linkedin}
-                          </p>
-                        </Card>
+              {/* Analysis Results */}
+              {selectedJob.status === 'completed' && selectedJob.analysis && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <BarChart3 className="h-5 w-5" />
+                      Analysis Results
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {/* Sentiment */}
+                    <div>
+                      <span className="font-medium text-sm">Sentiment:</span>
+                      <div className="mt-1 flex items-center gap-2">
+                        <Badge 
+                          variant={
+                            selectedJob.analysis.sentiment.label === 'positive' ? 'default' :
+                            selectedJob.analysis.sentiment.label === 'negative' ? 'destructive' : 'secondary'
+                          }
+                        >
+                          {selectedJob.analysis.sentiment.label}
+                        </Badge>
+                        <span className="text-sm text-gray-600">
+                          ({Math.round(selectedJob.analysis.sentiment.score * 100)}%)
+                        </span>
                       </div>
+                    </div>
 
-                      {/* Hashtags */}
+                    {/* Reading Grade */}
+                    {selectedJob.analysis.readingGrade && (
                       <div>
-                        <h4 className="font-semibold mb-3 flex items-center">
-                          <Hash className="h-4 w-4 mr-2" />
-                          Hashtags
-                        </h4>
-                        <div className="flex flex-wrap gap-2">
-                          {item.analysis.hashtags.slice(0, 10).map((hashtag, index) => (
-                            <Badge
-                              key={index}
-                              variant="outline"
-                              className="cursor-pointer hover:bg-primary hover:text-primary-foreground"
-                              onClick={() => handleCopy(hashtag.tag, 'Hashtag')}
-                            >
+                        <span className="font-medium text-sm">Reading Grade:</span>
+                        <div className="mt-1 text-gray-600">
+                          Grade {selectedJob.analysis.readingGrade.toFixed(1)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Engagement Score */}
+                    {selectedJob.analysis.engagementScore && (
+                      <div>
+                        <span className="font-medium text-sm">Engagement Score:</span>
+                        <div className="mt-1 text-gray-600">
+                          {Math.round(selectedJob.analysis.engagementScore * 100)}%
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Top Hashtags */}
+                    {selectedJob.analysis.hashtags && selectedJob.analysis.hashtags.length > 0 && (
+                      <div>
+                        <span className="font-medium text-sm flex items-center gap-1 mb-2">
+                          <Hash className="h-4 w-4" />
+                          Top Hashtags:
+                        </span>
+                        <div className="flex flex-wrap gap-1">
+                          {selectedJob.analysis.hashtags.slice(0, 5).map((hashtag, index) => (
+                            <Badge key={index} variant="outline" className="text-xs">
                               {hashtag.tag}
                             </Badge>
                           ))}
                         </div>
                       </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
 
-                      {/* Original Text Preview */}
-                      <div>
-                        <h4 className="font-semibold mb-3">Original Text</h4>
-                        <div className="bg-muted p-4 rounded-md">
-                          <p className="text-sm line-clamp-4">
-                            {item.extractedText}
-                          </p>
+              {/* Platform Content */}
+              {selectedJob.status === 'completed' && selectedJob.analysis?.improvedText && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Share2 className="h-5 w-5" />
+                      Platform Content
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    {Object.entries(selectedJob.analysis.improvedText).map(([platform, content]) => (
+                      <div key={platform} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-sm capitalize flex items-center gap-1">
+                            <Users className="h-4 w-4" />
+                            {platform}
+                          </span>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleCopyContent(content, platform)}
+                          >
+                            <Copy className="h-3 w-3 mr-1" />
+                            Copy
+                          </Button>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded-md text-sm">
+                          {content}
                         </div>
                       </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          ) : (
+            <Card className="sticky top-4">
+              <CardContent className="pt-6">
+                <div className="text-center py-8">
+                  <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Select a job to view details
+                  </h3>
+                  <p className="text-gray-500">
+                    Click on any job from your history to see detailed analysis results.
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

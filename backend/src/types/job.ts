@@ -6,6 +6,7 @@ export interface JobData {
   size: number;
   filePath: string;
   userId?: string;
+  supabaseJobId?: number; // Link to Supabase job record
 }
 
 export interface JobProgress {

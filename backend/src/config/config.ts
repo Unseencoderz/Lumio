@@ -18,12 +18,18 @@ const configSchema = z.object({
   redisUsername: z.string().optional(),
   redisPassword: z.string().optional(),
   
-  // Firebase
+  // Firebase (Authentication only)
   firebaseProjectId: z.string().optional(),
   firebasePrivateKey: z.string().optional(),
   firebaseClientEmail: z.string().optional(),
   useFirebaseStorage: z.coerce.boolean().default(false),
   firebaseStorageBucket: z.string().optional(),
+  
+  // Supabase (Database and optional storage)
+  supabaseUrl: z.string().optional(),
+  supabaseServiceKey: z.string().optional(),
+  supabaseBucket: z.string().default('uploads'),
+  useSupabase: z.coerce.boolean().default(false),
   
   // File Processing
   maxFileSizeBytes: z.coerce.number().default(10 * 1024 * 1024), // 10MB
@@ -57,6 +63,10 @@ const parseConfig = (): z.infer<typeof configSchema> => {
     firebaseClientEmail: process.env.FIREBASE_CLIENT_EMAIL,
     useFirebaseStorage: process.env.USE_FIREBASE_STORAGE,
     firebaseStorageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+    supabaseUrl: process.env.SUPABASE_URL,
+    supabaseServiceKey: process.env.SUPABASE_SERVICE_KEY,
+    supabaseBucket: process.env.SUPABASE_BUCKET,
+    useSupabase: process.env.USE_SUPABASE,
     maxFileSizeBytes: process.env.MAX_FILE_SIZE_BYTES,
     jobTtlSeconds: process.env.JOB_TTL_SECONDS,
     maxPdfPages: process.env.MAX_PDF_PAGES,

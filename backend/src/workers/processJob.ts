@@ -8,6 +8,7 @@ import { tesseractService } from '../services/ocr';
 import { pdfService } from '../services/pdf';
 import { TextAnalysisService } from '../services/textAnalysis';
 import { CacheService } from '../utils/cache';
+import { supabaseDb } from '../services/supabase';
 import fs from 'fs/promises';
 import path from 'path';
 
@@ -97,10 +98,10 @@ export class DocumentProcessor {
         meta: {
           engine,
           processingTimeMs: Date.now() - startTime,
-          piiDetected,
-          partialProcessing,
-          pagesProcessed,
-          totalPages,
+          ...(piiDetected !== undefined && { piiDetected }),
+          ...(partialProcessing !== undefined && { partialProcessing }),
+          ...(pagesProcessed !== undefined && { pagesProcessed }),
+          ...(totalPages !== undefined && { totalPages }),
         },
       };
 
@@ -112,6 +113,28 @@ export class DocumentProcessor {
         JSON.stringify(result)
       );
 
+      // Update Supabase job record if available
+      if (job.data.supabaseJobId && supabaseDb) {
+        try {
+          await supabaseDb.updateJob(job.data.supabaseJobId, {
+            status: 'completed',
+            extracted_text: extractedText,
+            analysis: analysis,
+            meta: result.meta,
+          });
+          logger.info({ 
+            jobId: id, 
+            supabaseJobId: job.data.supabaseJobId 
+          }, 'Job result saved to Supabase');
+        } catch (error) {
+          logger.warn({ 
+            jobId: id, 
+            supabaseJobId: job.data.supabaseJobId, 
+            error 
+          }, 'Failed to update job in Supabase');
+        }
+      }
+
       await job.updateProgress(100);
 
       logger.info({
@@ -122,6 +145,26 @@ export class DocumentProcessor {
       }, 'Document processing completed');
 
     } catch (error) {
+      // Update Supabase job record with error if available
+      if (job.data.supabaseJobId && supabaseDb) {
+        try {
+          await supabaseDb.updateJob(job.data.supabaseJobId, {
+            status: 'failed',
+            error_message: error instanceof Error ? error.message : 'Unknown error',
+          });
+          logger.info({ 
+            jobId: id, 
+            supabaseJobId: job.data.supabaseJobId 
+          }, 'Job failure saved to Supabase');
+        } catch (supabaseError) {
+          logger.warn({ 
+            jobId: id, 
+            supabaseJobId: job.data.supabaseJobId, 
+            error: supabaseError 
+          }, 'Failed to update job failure in Supabase');
+        }
+      }
+
       logger.error({
         jobId: id,
         error: error instanceof Error ? error.message : 'Unknown error',
@@ -250,20 +293,27 @@ const processor = new DocumentProcessor();
 
 // Create worker
 export const startWorker = async (): Promise<Worker> => {
+  // Get Redis connection options
+  const redisConfig = config.redisHost && config.redisPort ? {
+    host: config.redisHost,
+    port: config.redisPort,
+    username: config.redisUsername || 'default',
+    ...(config.redisPassword && { password: config.redisPassword }),
+  } : {
+    host: 'localhost',
+    port: 6379,
+  };
+
   const worker = new Worker(
     'document-processing',
     async (job: Job<JobData>) => {
       await processor.processDocument(job);
     },
     {
-      connection: {
-        host: redisClient.options?.socket?.host || 'localhost',
-        port: redisClient.options?.socket?.port || 6379,
-        password: redisClient.options?.password,
-      },
+      connection: redisConfig,
       concurrency: 2, // Process up to 2 jobs concurrently
-      removeOnComplete: 10,
-      removeOnFail: 5,
+      removeOnComplete: { count: 10 },
+      removeOnFail: { count: 5 },
     }
   );
 

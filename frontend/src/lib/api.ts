@@ -157,24 +157,30 @@ export const apiClient = {
 
   // Get queue stats
   getQueueStats: async () => {
-    const response = await api.get('/queue/stats');
+    const response = await api.get('/jobs/stats');
     return response.data;
   },
 
-  // Save analysis to history
-  saveAnalysis: async (analysisData: any) => {
-    const response = await api.post('/history', analysisData);
-    return response.data;
-  },
-
-  // Get analysis history
+  // Get user job history (requires authentication)
   getHistory: async (page = 1, limit = 10) => {
     const response = await api.get(`/history?page=${page}&limit=${limit}`);
     return response.data;
   },
 
-  // Delete analysis from history
-  deleteAnalysis: async (id: string) => {
-    await api.delete(`/history/${id}`);
+  // Get specific job details from history
+  getHistoryItem: async (jobId: number) => {
+    const response = await api.get(`/history/${jobId}`);
+    return response.data;
+  },
+
+  // Delete job from history
+  deleteHistoryItem: async (jobId: number) => {
+    await api.delete(`/history/${jobId}`);
+  },
+
+  // Get user job statistics
+  getUserJobStats: async () => {
+    const response = await api.get('/history/stats');
+    return response.data;
   },
 };

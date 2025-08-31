@@ -13,7 +13,8 @@ AI-powered document text extraction and social media optimization platform. Tran
 - **Real-time Processing**: Background job processing with BullMQ and Redis
 - **PII Detection**: Automatic detection and redaction of personally identifiable information
 - **Firebase Authentication**: Secure user authentication with Google and GitHub OAuth
-- **User History**: Track and manage previous analysis jobs (authenticated users)
+- **Supabase Database**: Persistent job history and user data storage
+- **User History**: Track and manage previous analysis jobs with detailed metadata
 - **Caching**: Intelligent Redis-based caching to reduce API costs and improve performance
 - **Drag & Drop Interface**: Modern, intuitive file upload with progress tracking
 - **Direct Text Analysis**: Analyze text directly without file upload
@@ -45,10 +46,11 @@ AI-powered document text extraction and social media optimization platform. Tran
 - **Sentry** for error tracking (optional)
 - **Helmet** for security headers
 
-### Infrastructure
+### Infrastructure & Database
 - **Redis** for caching and job queues
-- **Firebase** for authentication and optional storage
-- **Local file storage** with configurable Firebase Storage fallback
+- **Firebase** for authentication
+- **Supabase** for job history database and optional file storage
+- **Local file storage** with configurable cloud storage fallback
 
 ## 📋 Prerequisites
 
@@ -56,6 +58,7 @@ AI-powered document text extraction and social media optimization platform. Tran
 - **Redis server**
 - **Google Gemini Pro API key**
 - **Firebase project** (for authentication)
+- **Supabase project** (for database and optional storage)
 
 ## 🏃‍♂️ Quick Start
 
@@ -99,9 +102,15 @@ JOB_TTL_SECONDS=86400
 # Optional - Rate Limiting
 RATE_LIMIT_UPLOADS_PER_HOUR=10
 
-# Optional - Firebase Storage (if using cloud storage)
+# Supabase Configuration (Required for job history)
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_KEY=your-service-role-key
+USE_SUPABASE=true
+
+# Optional - Storage Configuration
 USE_FIREBASE_STORAGE=false
 FIREBASE_STORAGE_BUCKET=your-bucket-name
+SUPABASE_BUCKET=uploads
 
 # Optional - Monitoring
 SENTRY_DSN=your_sentry_dsn
@@ -119,8 +128,9 @@ VITE_FIREBASE_MESSAGING_SENDER_ID=123456789
 VITE_FIREBASE_APP_ID=1:123456789:web:abcdef
 ```
 
-### 3. Start Redis
+### 3. Database Setup
 
+#### Redis (Required)
 Make sure Redis is running on your system:
 
 ```bash
@@ -133,6 +143,16 @@ sudo systemctl start redis-server
 # Or run Redis in Docker
 docker run -d -p 6379:6379 redis:7-alpine
 ```
+
+#### Supabase (Required for job history)
+1. Create a new project at [supabase.com](https://supabase.com)
+2. Go to Settings > API to get your project URL and service role key
+3. In the SQL Editor, run the schema from `backend/supabase-schema.sql`:
+   ```sql
+   -- Copy and paste the contents of backend/supabase-schema.sql
+   -- This creates the jobs table and necessary indexes
+   ```
+4. Optionally enable Supabase Storage if you want cloud file storage
 
 ### 4. Development Setup
 
@@ -217,6 +237,8 @@ post-polish/
 │   │   └── server.ts        # Express server setup
 │   ├── uploads/             # Temporary file storage
 │   ├── eng.traineddata      # Tesseract language data
+│   ├── supabase-schema.sql  # Database schema for Supabase
+│   ├── DATABASE_SETUP.md    # Database setup guide
 │   ├── tsconfig.json        # TypeScript configuration
 │   └── package.json         # Backend dependencies
 ├── start-dev.sh             # Development startup script
@@ -242,12 +264,19 @@ npm run dev:frontend     # Start frontend in development
 cd frontend && npm run build
 ```
 
-### Authentication Flow
+### Architecture Overview
 
+**Hybrid Database Approach:**
+- **Firebase**: Handles user authentication and session management
+- **Supabase**: Stores job history, analysis results, and user data
+- **Redis**: Provides caching and job queue management
+
+**Authentication Flow:**
 1. **Public Access**: Landing page, about page, and direct text analysis
 2. **Protected Routes**: Dashboard, file upload, history require authentication
 3. **Firebase Auth**: Email/password, Google OAuth, GitHub OAuth
 4. **Backend Auth**: JWT token verification via Firebase Admin SDK
+5. **Data Storage**: Authenticated users' job history saved to Supabase
 
 ## 📡 API Documentation
 
@@ -412,9 +441,13 @@ GET /health
 | `FIREBASE_PROJECT_ID` | Firebase project ID | - | **Yes** |
 | `FIREBASE_PRIVATE_KEY` | Firebase service account private key | - | **Yes** |
 | `FIREBASE_CLIENT_EMAIL` | Firebase service account email | - | **Yes** |
+| `SUPABASE_URL` | Supabase project URL | - | **Yes** |
+| `SUPABASE_SERVICE_KEY` | Supabase service role key | - | **Yes** |
+| `USE_SUPABASE` | Enable Supabase database | `true` | **Yes** |
 | `REDIS_URL` | Redis connection URL | `redis://localhost:6379` | No |
 | `USE_FIREBASE_STORAGE` | Enable Firebase Storage | `false` | No |
 | `FIREBASE_STORAGE_BUCKET` | Firebase Storage bucket name | - | If using Firebase Storage |
+| `SUPABASE_BUCKET` | Supabase storage bucket name | `uploads` | No |
 | `MAX_FILE_SIZE_BYTES` | Max upload size | `10485760` (10MB) | No |
 | `JOB_TTL_SECONDS` | Job result cache TTL | `86400` (24h) | No |
 | `MAX_PDF_PAGES` | Max PDF pages to process | `10` | No |

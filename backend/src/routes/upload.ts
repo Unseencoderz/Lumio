@@ -4,9 +4,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { config } from '../config/config';
 import { logger } from '../utils/logger';
 import { AppError } from '../middleware/errorHandler';
+import { optionalAuth } from '../middleware/auth';
 import { validateFile, sanitizeFilename } from '../utils/fileValidation';
 import { jobQueue } from '../queues/jobQueue';
 import { JobData } from '../types/job';
+import { supabaseDb } from '../services/supabase';
 import path from 'path';
 import fs from 'fs/promises';
 
@@ -50,7 +52,7 @@ const ensureUploadDir = async (): Promise<string> => {
   return uploadDir;
 };
 
-router.post('/upload', upload.single('file'), async (req: Request, res: Response, next: NextFunction) => {
+router.post('/upload', optionalAuth, upload.single('file'), async (req: Request, res: Response, next: NextFunction) => {
   try {
     if (!req.file) {
       throw new AppError('No file uploaded', 400);
@@ -82,8 +84,32 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
       mimeType: validation.mimeType || mimetype,
       size,
       filePath,
-      userId: req.headers['x-user-id'] as string, // Optional user ID from header
+      userId: req.user?.uid, // Optional user ID from authentication
     };
+
+    // Save job record to Supabase if user is authenticated and Supabase is configured
+    let supabaseJobId: number | undefined;
+    if (req.user && supabaseDb) {
+      try {
+        const jobRecord = await supabaseDb.createJob({
+          user_id: req.user.uid,
+          filename: sanitizedFilename,
+          original_name: originalname,
+          storage_path: filePath,
+          status: 'processing',
+        });
+        supabaseJobId = jobRecord.id;
+        
+        // Add Supabase job ID to job data for worker processing
+        jobData.supabaseJobId = supabaseJobId;
+      } catch (error) {
+        logger.warn({ 
+          jobId, 
+          userId: req.user.uid, 
+          error 
+        }, 'Failed to save job to Supabase, continuing with processing');
+      }
+    }
 
     // Add job to queue
     await jobQueue.add('processDocument', jobData, {
@@ -102,6 +128,8 @@ router.post('/upload', upload.single('file'), async (req: Request, res: Response
       filename: sanitizedFilename,
       size,
       mimeType: validation.mimeType,
+      userId: req.user?.uid,
+      supabaseJobId,
     }, 'File uploaded and job queued');
 
     // Return job information

@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { useMutation } from '@tanstack/react-query';
-import { Upload, File, AlertCircle, FileText, Image, FileImage } from 'lucide-react';
+import { Upload, AlertCircle, FileText, Image } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { formatBytes, cn } from '@/lib/utils';
 import { Card, CardContent } from '@/components/ui/card';

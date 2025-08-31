@@ -1,12 +1,10 @@
 import { useState } from 'react';
 import { useJobResult } from '@/hooks/useJobPolling';
-import { JobResult } from '@/lib/api';
 import { 
   copyToClipboard, 
   formatDuration, 
   getSentimentColor, 
-  getSentimentIcon,
-  truncateText 
+  getSentimentIcon
 } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -23,15 +21,10 @@ import {
   Heart,
   MessageCircle,
   Share2,
-  Sparkles,
   TrendingUp,
   Users,
   Zap,
-  Brain,
-  FileText,
-  Image,
-  Target,
-  BarChart3
+  Brain
 } from 'lucide-react';
 
 interface ResultsPanelProps {
@@ -156,7 +149,11 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <p className="text-muted">Engine</p>
-              <p className="font-medium capitalize text-text">{result.meta.engine.replace('-', ' ')}</p>
+              <p className="font-medium capitalize text-text">
+                {result.meta.engine === 'gemini-pro' ? 'Gemini Pro' : 
+                 result.meta.engine === 'tesseract' ? 'Tesseract' : 
+                 String(result.meta.engine).replace('-', ' ')}
+              </p>
             </div>
             <div>
               <p className="text-muted">Processing Time</p>
@@ -524,7 +521,9 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                 <div className="flex justify-between">
                   <span className="text-muted">AI Engine:</span>
                   <span className="font-medium text-text capitalize">
-                    {result.meta.engine.replace('-', ' ')}
+                    {result.meta.engine === 'gemini-pro' ? 'Gemini Pro' : 
+                     result.meta.engine === 'tesseract' ? 'Tesseract' : 
+                     String(result.meta.engine).replace('-', ' ')}
                   </span>
                 </div>
                 <div className="flex justify-between">

@@ -12,7 +12,6 @@ import {
   Copy,
   BarChart3,
   Hash,
-  MessageCircle,
   Users,
   Share2
 } from 'lucide-react';
@@ -88,11 +87,11 @@ export function HistoryPage() {
     return (
       <div className="max-w-4xl mx-auto">
         <div className="text-center py-12">
-          <History className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <History className="h-16 w-16 text-muted mx-auto mb-4" />
+          <h1 className="text-2xl font-bold text-text mb-2">
             Sign in to view your history
           </h1>
-          <p className="text-gray-600">
+          <p className="text-muted">
             Your document analysis history will appear here after you sign in.
           </p>
         </div>
@@ -103,11 +102,11 @@ export function HistoryPage() {
   return (
     <div className="max-w-7xl mx-auto">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center gap-3">
-          <History className="h-8 w-8" />
+        <h1 className="text-3xl font-bold text-text mb-2 flex items-center gap-3">
+          <History className="h-8 w-8 text-accent-cyan" />
           Analysis History
         </h1>
-        <p className="text-gray-600">
+        <p className="text-muted">
           View and manage your document analysis history.
         </p>
       </div>
@@ -122,20 +121,20 @@ export function HistoryPage() {
         <div className="lg:col-span-1">
           {selectedJob ? (
             <div className="space-y-4 sticky top-4">
-              <Card>
+              <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="h-5 w-5" />
+                  <CardTitle className="flex items-center gap-2 text-text">
+                    <FileText className="h-5 w-5 text-accent-cyan" />
                     Job Details
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-muted">
                     {selectedJob.original_name}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="font-medium">Status:</span>
+                      <span className="font-medium text-text">Status:</span>
                       <div className="mt-1">
                         <Badge 
                           variant={
@@ -148,23 +147,25 @@ export function HistoryPage() {
                       </div>
                     </div>
                     <div>
-                      <span className="font-medium">Engine:</span>
-                      <div className="mt-1 text-gray-600">
-                        {selectedJob.meta?.engine || 'Unknown'}
+                      <span className="font-medium text-text">Engine:</span>
+                      <div className="mt-1 text-muted">
+                        {selectedJob.meta?.engine === 'gemini-pro' ? 'Gemini Pro' : 
+                         selectedJob.meta?.engine === 'tesseract' ? 'Tesseract' : 
+                         selectedJob.meta?.engine || 'Unknown'}
                       </div>
                     </div>
                     {selectedJob.meta?.processingTimeMs && (
                       <div>
-                        <span className="font-medium">Processing Time:</span>
-                        <div className="mt-1 text-gray-600">
+                        <span className="font-medium text-text">Processing Time:</span>
+                        <div className="mt-1 text-muted">
                           {Math.round(selectedJob.meta.processingTimeMs / 1000)}s
                         </div>
                       </div>
                     )}
                     {selectedJob.analysis?.wordCount && (
                       <div>
-                        <span className="font-medium">Word Count:</span>
-                        <div className="mt-1 text-gray-600">
+                        <span className="font-medium text-text">Word Count:</span>
+                        <div className="mt-1 text-muted">
                           {selectedJob.analysis.wordCount.toLocaleString()}
                         </div>
                       </div>
@@ -172,8 +173,8 @@ export function HistoryPage() {
                   </div>
 
                   {selectedJob.error_message && (
-                    <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                      <p className="text-sm text-red-600">
+                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                      <p className="text-sm text-destructive">
                         <strong>Error:</strong> {selectedJob.error_message}
                       </p>
                     </div>
@@ -183,17 +184,17 @@ export function HistoryPage() {
 
               {/* Analysis Results */}
               {selectedJob.status === 'completed' && selectedJob.analysis && (
-                <Card>
+                <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <BarChart3 className="h-5 w-5" />
+                    <CardTitle className="flex items-center gap-2 text-text">
+                      <BarChart3 className="h-5 w-5 text-accent-violet" />
                       Analysis Results
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     {/* Sentiment */}
                     <div>
-                      <span className="font-medium text-sm">Sentiment:</span>
+                      <span className="font-medium text-sm text-text">Sentiment:</span>
                       <div className="mt-1 flex items-center gap-2">
                         <Badge 
                           variant={
@@ -203,7 +204,7 @@ export function HistoryPage() {
                         >
                           {selectedJob.analysis.sentiment.label}
                         </Badge>
-                        <span className="text-sm text-gray-600">
+                        <span className="text-sm text-muted">
                           ({Math.round(selectedJob.analysis.sentiment.score * 100)}%)
                         </span>
                       </div>
@@ -212,8 +213,8 @@ export function HistoryPage() {
                     {/* Reading Grade */}
                     {selectedJob.analysis.readingGrade && (
                       <div>
-                        <span className="font-medium text-sm">Reading Grade:</span>
-                        <div className="mt-1 text-gray-600">
+                        <span className="font-medium text-sm text-text">Reading Grade:</span>
+                        <div className="mt-1 text-muted">
                           Grade {selectedJob.analysis.readingGrade.toFixed(1)}
                         </div>
                       </div>
@@ -222,8 +223,8 @@ export function HistoryPage() {
                     {/* Engagement Score */}
                     {selectedJob.analysis.engagementScore && (
                       <div>
-                        <span className="font-medium text-sm">Engagement Score:</span>
-                        <div className="mt-1 text-gray-600">
+                        <span className="font-medium text-sm text-text">Engagement Score:</span>
+                        <div className="mt-1 text-muted">
                           {Math.round(selectedJob.analysis.engagementScore * 100)}%
                         </div>
                       </div>
@@ -232,13 +233,13 @@ export function HistoryPage() {
                     {/* Top Hashtags */}
                     {selectedJob.analysis.hashtags && selectedJob.analysis.hashtags.length > 0 && (
                       <div>
-                        <span className="font-medium text-sm flex items-center gap-1 mb-2">
-                          <Hash className="h-4 w-4" />
+                        <span className="font-medium text-sm flex items-center gap-1 mb-2 text-text">
+                          <Hash className="h-4 w-4 text-success" />
                           Top Hashtags:
                         </span>
                         <div className="flex flex-wrap gap-1">
                           {selectedJob.analysis.hashtags.slice(0, 5).map((hashtag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs">
+                            <Badge key={index} variant="outline" className="text-xs border-border hover:bg-accent-gradient hover:text-white hover:border-accent-cyan transition-all duration-300">
                               {hashtag.tag}
                             </Badge>
                           ))}
@@ -251,10 +252,10 @@ export function HistoryPage() {
 
               {/* Platform Content */}
               {selectedJob.status === 'completed' && selectedJob.analysis?.improvedText && (
-                <Card>
+                <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Share2 className="h-5 w-5" />
+                    <CardTitle className="flex items-center gap-2 text-text">
+                      <Share2 className="h-5 w-5 text-accent-cyan" />
                       Platform Content
                     </CardTitle>
                   </CardHeader>
@@ -262,20 +263,21 @@ export function HistoryPage() {
                     {Object.entries(selectedJob.analysis.improvedText).map(([platform, content]) => (
                       <div key={platform} className="space-y-2">
                         <div className="flex items-center justify-between">
-                          <span className="font-medium text-sm capitalize flex items-center gap-1">
-                            <Users className="h-4 w-4" />
+                          <span className="font-medium text-sm capitalize flex items-center gap-1 text-text">
+                            <Users className="h-4 w-4 text-muted" />
                             {platform}
                           </span>
                           <Button
                             variant="outline"
                             size="sm"
                             onClick={() => handleCopyContent(content, platform)}
+                            className="border-border hover:bg-surface hover:border-accent-cyan transition-all duration-300"
                           >
                             <Copy className="h-3 w-3 mr-1" />
                             Copy
                           </Button>
                         </div>
-                        <div className="p-3 bg-gray-50 rounded-md text-sm">
+                        <div className="p-3 bg-surface/50 rounded-md text-sm text-text border border-border">
                           {content}
                         </div>
                       </div>
@@ -285,14 +287,14 @@ export function HistoryPage() {
               )}
             </div>
           ) : (
-            <Card className="sticky top-4">
+            <Card className="sticky top-4 card-modern hover:shadow-glow-accent transition-all duration-300">
               <CardContent className="pt-6">
                 <div className="text-center py-8">
-                  <Eye className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <Eye className="h-12 w-12 text-muted mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-text mb-2">
                     Select a job to view details
                   </h3>
-                  <p className="text-gray-500">
+                  <p className="text-muted">
                     Click on any job from your history to see detailed analysis results.
                   </p>
                 </div>

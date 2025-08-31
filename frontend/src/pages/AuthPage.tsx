@@ -15,9 +15,6 @@ import {
   Mail,
   Lock,
   User,
-  Github,
-  Chrome,
-  Apple,
   Eye,
   EyeOff
 } from 'lucide-react';
@@ -190,7 +187,7 @@ export function AuthPage() {
                   onClick={() => handleSocialLogin('google')}
                   disabled={loading}
                 >
-                  <Chrome className="h-4 w-4 mr-2" />
+                  <img src="/google.png" alt="Google" className="h-4 w-4 mr-2" />
                   Continue with Google
                 </Button>
                 
@@ -200,7 +197,7 @@ export function AuthPage() {
                   onClick={() => handleSocialLogin('github')}
                   disabled={loading}
                 >
-                  <Github className="h-4 w-4 mr-2" />
+                  <img src="/github.png" alt="GitHub" className="h-4 w-4 mr-2" />
                   Continue with GitHub
                 </Button>
 

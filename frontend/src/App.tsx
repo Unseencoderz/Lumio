@@ -1,4 +1,4 @@
-  import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
 import { LandingPage } from '@/pages/LandingPage';
 import { AboutPage } from '@/pages/AboutPage';
@@ -19,17 +19,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-// Dashboard wrapper that includes the authenticated layout
-function Dashboard() {
+// Main app layout with unified header
+function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/analyze" element={<AnalyzePage />} />
-          <Route path="/history" element={<HistoryPage />} />
-        </Routes>
+        {children}
       </main>
     </div>
   );
@@ -39,17 +35,38 @@ function App() {
   return (
     <AuthProvider>
       <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/about" element={<AboutPage />} />
+        <Route path="/" element={
+          <AppLayout>
+            <LandingPage />
+          </AppLayout>
+        } />
+        <Route path="/about" element={
+          <AppLayout>
+            <AboutPage />
+          </AppLayout>
+        } />
         <Route path="/auth" element={<AuthPage />} />
-        <Route 
-          path="/dashboard/*" 
-          element={
-            <ProtectedRoute>
-              <Dashboard />
-            </ProtectedRoute>
-          } 
-        />
+        <Route path="/dashboard" element={
+          <ProtectedRoute>
+            <AppLayout>
+              <HomePage />
+            </AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/analyze" element={
+          <ProtectedRoute>
+            <AppLayout>
+              <AnalyzePage />
+            </AppLayout>
+          </ProtectedRoute>
+        } />
+        <Route path="/dashboard/history" element={
+          <ProtectedRoute>
+            <AppLayout>
+              <HistoryPage />
+            </AppLayout>
+          </ProtectedRoute>
+        } />
       </Routes>
     </AuthProvider>
   );

@@ -420,7 +420,7 @@ export function AnalyzePage() {
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {result.hashtags.map((hashtag, index) => (
+                    {(result.hashtags || []).map((hashtag, index) => (
                       <Badge
                         key={index}
                         variant="outline"
@@ -435,7 +435,7 @@ export function AnalyzePage() {
                     variant="outline"
                     size="sm"
                     onClick={() => handleCopy(
-                      result.hashtags.map(h => h.tag).join(' '),
+                      (result.hashtags || []).map(h => h.tag).join(' '),
                       'All hashtags'
                     )}
                   >

@@ -341,7 +341,7 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
             </CardHeader>
             <CardContent>
               <div className="flex flex-wrap gap-2">
-                {result.analysis.hashtags.map((hashtag, index) => (
+                {(result.analysis.hashtags || []).map((hashtag, index) => (
                   <Badge
                     key={index}
                     variant="outline"
@@ -358,7 +358,7 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
                   size="sm"
                   className="border-border hover:bg-surface hover:border-accent-cyan"
                   onClick={() => handleCopy(
-                    result.analysis.hashtags.map(h => h.tag).join(' '),
+                    (result.analysis.hashtags || []).map(h => h.tag).join(' '),
                     'All hashtags'
                   )}
                 >
@@ -557,13 +557,13 @@ export function ResultsPanel({ jobId, filename }: ResultsPanelProps) {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {result.analysis.hashtags.slice(0, 5).map((hashtag, index) => (
+                {(result.analysis.hashtags || []).slice(0, 5).map((hashtag, index) => (
                   <div key={index} className="flex items-center justify-between p-3 bg-surface rounded-lg border border-border">
                     <div className="flex-1">
                       <div className="flex items-center space-x-2">
                         <Badge variant="outline" className="border-border">{hashtag.tag}</Badge>
                         <span className="text-sm font-medium text-text">
-                          Score: {hashtag.score.toFixed(2)}
+                          Score: {Number(hashtag.score ?? 0).toFixed(2)}
                         </span>
                       </div>
                       {hashtag.rationale && (

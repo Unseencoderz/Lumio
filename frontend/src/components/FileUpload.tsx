@@ -32,9 +32,9 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
       console.log('Upload response:', response); // Debug log
       toast({
         title: 'Upload successful',
-        description: `${response.filename || 'File'} is now being processed.`,
+        description: `${(selectedFile?.name) || response.filename || 'File'} is now being processed.`,
       });
-      onUploadSuccess(response.id, response.filename);
+      onUploadSuccess(response.id, (selectedFile?.name) || response.filename || 'File');
       setSelectedFile(null);
     },
     onError: (error) => {

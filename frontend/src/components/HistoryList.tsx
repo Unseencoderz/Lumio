@@ -66,6 +66,12 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
     queryKey: ['history', page],
     queryFn: () => apiClient.getHistory(page),
     staleTime: 30000, // 30 seconds
+    retry: (failureCount, err: any) => {
+      // If unauthorized or service unavailable, do not retry endlessly
+      const status = err?.response?.status;
+      if (status === 401 || status === 503) return false;
+      return failureCount < 2;
+    },
   });
 
   const getStatusIcon = (status: string) => {

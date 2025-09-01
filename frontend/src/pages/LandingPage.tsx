@@ -292,9 +292,18 @@ export function LandingPage() {
         <div className="container mx-auto px-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <div className="flex items-center space-x-3 mb-6 md:mb-0">
-              <div className="brand-icon group-hover:animate-glow-pulse transition-all duration-300">
-                <Brain className="h-6 w-6 text-accent-cyan" />
-              </div>
+            <div className="brand-icon group-hover:animate-glow-pulse">
+              <img 
+                src="/android-chrome-192x192.png" 
+                alt="Lumio" 
+                className="h-8 w-8" 
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                  e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                }}
+              />
+              <Brain className="h-8 w-8 text-accent-cyan hidden" />
+            </div>
               <span className="text-2xl font-bold highlight-text">Lumio</span>
             </div>
             <div className="flex items-center space-x-8 text-sm text-muted">
@@ -303,7 +312,7 @@ export function LandingPage() {
               </Link>
               <span className="flex items-center space-x-2">
                 Powered by{' '}
-                <span className="highlight-text">Google Gemini Pro</span>
+                <span className="highlight-text"> Google Gemini Pro </span>
                 {' '}& Tesseract
               </span>
             </div>

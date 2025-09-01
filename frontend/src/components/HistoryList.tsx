@@ -78,7 +78,7 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
       case 'failed':
         return <XCircle className="h-4 w-4 text-red-500" />;
       default:
-        return <Clock className="h-4 w-4 text-gray-500" />;
+        return <Clock className="h-4 w-4 text-muted" />;
     }
   };
 
@@ -127,14 +127,14 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
           <Card key={i} className="animate-pulse">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div className="h-4 bg-gray-200 rounded w-1/3"></div>
-                <div className="h-6 bg-gray-200 rounded w-20"></div>
+                <div className="h-4 bg-surface/30 rounded w-1/3"></div>
+                <div className="h-6 bg-surface/30 rounded w-20"></div>
               </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-2">
-                <div className="h-3 bg-gray-200 rounded w-1/4"></div>
-                <div className="h-3 bg-gray-200 rounded w-1/6"></div>
+                <div className="h-3 bg-surface/30 rounded w-1/4"></div>
+                <div className="h-3 bg-surface/30 rounded w-1/6"></div>
               </div>
             </CardContent>
           </Card>
@@ -146,13 +146,13 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
   // Error state
   if (error) {
     return (
-      <Card className="border-red-200 bg-red-50">
+      <Card className="border-destructive/30 bg-destructive/10">
         <CardContent className="pt-6">
-          <div className="flex items-center gap-3 text-red-600">
+          <div className="flex items-center gap-3 text-destructive">
             <XCircle className="h-5 w-5" />
             <div>
               <p className="font-medium">Failed to load history</p>
-              <p className="text-sm text-red-500">
+              <p className="text-sm text-destructive/90">
                 {error instanceof Error ? error.message : 'An unknown error occurred'}
               </p>
             </div>
@@ -176,11 +176,11 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
       <Card className="border-dashed">
         <CardContent className="pt-6">
           <div className="text-center py-8">
-            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">
+            <FileText className="h-12 w-12 text-muted mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-text mb-2">
               No history yet
             </h3>
-            <p className="text-gray-500 mb-4">
+            <p className="text-muted mb-4">
               Upload a document or analyze some text to get started.
             </p>
           </div>
@@ -195,7 +195,7 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
       {/* Job Statistics */}
       <Card>
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Your Activity</CardTitle>
+          <CardTitle className="text-lg text-text">Your Activity</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -203,25 +203,25 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
               <div className="text-2xl font-bold text-blue-600">
                 {historyData.pagination.total}
               </div>
-              <div className="text-sm text-gray-500">Total Jobs</div>
+              <div className="text-sm text-muted">Total Jobs</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-green-600">
                 {historyData.jobs.filter(j => j.status === 'completed').length}
               </div>
-              <div className="text-sm text-gray-500">Completed</div>
+              <div className="text-sm text-muted">Completed</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-yellow-600">
                 {historyData.jobs.filter(j => j.status === 'processing').length}
               </div>
-              <div className="text-sm text-gray-500">Processing</div>
+              <div className="text-sm text-muted">Processing</div>
             </div>
             <div>
               <div className="text-2xl font-bold text-red-600">
                 {historyData.jobs.filter(j => j.status === 'failed').length}
               </div>
-              <div className="text-sm text-gray-500">Failed</div>
+              <div className="text-sm text-muted">Failed</div>
             </div>
           </div>
         </CardContent>
@@ -233,12 +233,12 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <FileText className="h-5 w-5 text-gray-500" />
+                <FileText className="h-5 w-5 text-muted" />
                 <div>
-                  <h3 className="font-medium text-gray-900 truncate max-w-xs">
+                  <h3 className="font-medium text-text truncate max-w-xs">
                     {job.original_name}
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-muted">
                     {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}
                   </p>
                 </div>
@@ -251,7 +251,7 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted">
                 {job.meta && (
                   <div className="space-y-1">
                     <div>Engine: {job.meta.engine}</div>
@@ -268,7 +268,7 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
                   </div>
                 )}
                 {job.error_message && (
-                  <div className="text-red-600 text-xs mt-1">
+                  <div className="text-destructive text-xs mt-1">
                     Error: {job.error_message}
                   </div>
                 )}
@@ -289,7 +289,7 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => handleDeleteJob(job.id, job.original_name)}
-                  className="text-red-600 hover:text-red-700"
+                  className="text-destructive hover:text-destructive/80"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -310,7 +310,7 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
             Previous
           </Button>
           
-          <span className="text-sm text-gray-500">
+          <span className="text-sm text-muted">
             Page {historyData.pagination.page} of {historyData.pagination.totalPages}
           </span>
           
@@ -325,4 +325,4 @@ export function HistoryList({ onJobSelect }: HistoryListProps) {
       )}
     </div>
   );
-} 
+}

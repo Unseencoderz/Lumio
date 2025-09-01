@@ -35,12 +35,25 @@ router.get('/status/:id', async (req: Request, res: Response, next: NextFunction
       if (job.failedReason) {
         status = 'failed';
         message = job.failedReason;
+        logger.warn({ jobId: id, reason: job.failedReason }, 'Job failed');
       } else if (cachedResult) {
         status = 'done';
         progress = 100;
+        logger.debug({ jobId: id }, 'Job completed successfully');
+      } else {
+        // Job finished but no result cached - this might indicate an issue
+        status = 'failed';
+        message = 'Job completed but result not available';
+        logger.error({ jobId: id }, 'Job finished but result not cached');
       }
     } else if (job.progress) {
       progress = typeof job.progress === 'number' ? job.progress : 0;
+      logger.debug({ jobId: id, progress }, 'Job in progress');
+    } else {
+      // Job exists but hasn't started processing yet
+      progress = 0;
+      message = 'Job queued, waiting to start';
+      logger.debug({ jobId: id }, 'Job queued but not started');
     }
 
     const response: JobProgress = {
@@ -50,10 +63,11 @@ router.get('/status/:id', async (req: Request, res: Response, next: NextFunction
       message,
     };
 
-    logger.debug({ jobId: id, status, progress }, 'Job status requested');
+    logger.debug({ jobId: id, status, progress, message }, 'Job status requested');
 
     res.json(response);
   } catch (error) {
+    logger.error({ error: error instanceof Error ? error.message : 'Unknown error' }, 'Job status error');
     next(error);
   }
 });

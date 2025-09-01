@@ -29,14 +29,16 @@ export function FileUpload({ onUploadSuccess }: FileUploadProps) {
   const uploadMutation = useMutation({
     mutationFn: apiClient.uploadFile,
     onSuccess: (response) => {
+      console.log('Upload response:', response); // Debug log
       toast({
         title: 'Upload successful',
-        description: `${response.filename} is now being processed.`,
+        description: `${response.filename || 'File'} is now being processed.`,
       });
       onUploadSuccess(response.id, response.filename);
       setSelectedFile(null);
     },
     onError: (error) => {
+      console.error('Upload error:', error); // Debug log
       toast({
         title: 'Upload failed',
         description: error.message,

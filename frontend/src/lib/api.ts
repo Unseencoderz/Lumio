@@ -1,11 +1,12 @@
 import axios from 'axios';
 import { auth } from './firebase';
 
+
 export interface JobProgress {
   id: string;
   status: 'processing' | 'done' | 'failed';
   progress: number;
-  message?: string;
+  message?: string; 
 }
 
 export interface AnalysisResult {
@@ -123,6 +124,7 @@ export const apiClient = {
       },
     });
     
+    console.log('API upload response:', response.data); // Debug log
     return response.data;
   },
 

@@ -2,7 +2,6 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import path from 'path';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
   resolve: {
@@ -14,7 +13,9 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: process.env.NODE_ENV === 'production' 
+          ? (process.env.VITE_API_URL || 'https://lumio-0joi.onrender.com')
+          : 'http://localhost:3001',
         changeOrigin: true,
       },
     },
@@ -22,10 +23,5 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     sourcemap: true,
-  },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/test/setup.ts'],
   },
 });

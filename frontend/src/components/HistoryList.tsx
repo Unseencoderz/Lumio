@@ -7,8 +7,7 @@ import {
   CheckCircle,
   XCircle,
   Trash2,
-  Download,
-  Loader2
+
 } from 'lucide-react';
 import { apiClient } from '@/lib/api';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

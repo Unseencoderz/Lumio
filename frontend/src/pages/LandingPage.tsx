@@ -16,7 +16,7 @@ import {
   Rocket,
   Star,
   TrendingUp,
-  Users,
+
   Globe
 } from 'lucide-react';
 

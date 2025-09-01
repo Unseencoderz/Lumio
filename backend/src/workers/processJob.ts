@@ -304,10 +304,21 @@ export const startWorker = async (): Promise<Worker> => {
     port: 6379,
   };
 
+  logger.info({ redisConfig }, 'Starting document processing worker');
+
   const worker = new Worker(
     'document-processing',
     async (job: Job<JobData>) => {
-      await processor.processDocument(job);
+      try {
+        await processor.processDocument(job);
+      } catch (error) {
+        logger.error({
+          jobId: job.id,
+          error: error instanceof Error ? error.message : 'Unknown error',
+          stack: error instanceof Error ? error.stack : undefined,
+        }, 'Worker job processing failed');
+        throw error;
+      }
     },
     {
       connection: redisConfig,
@@ -325,6 +336,7 @@ export const startWorker = async (): Promise<Worker> => {
     logger.error({
       jobId: job?.id,
       error: error.message,
+      stack: error.stack,
     }, 'Worker job failed');
   });
 
@@ -332,6 +344,10 @@ export const startWorker = async (): Promise<Worker> => {
     logger.error(error, 'Worker error');
   });
 
-  logger.info('Document processing worker started');
+  worker.on('stalled', (jobId) => {
+    logger.warn({ jobId }, 'Worker job stalled');
+  });
+
+  logger.info('Document processing worker started successfully');
   return worker;
 };

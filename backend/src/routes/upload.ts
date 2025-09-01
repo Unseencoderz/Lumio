@@ -84,7 +84,7 @@ router.post('/upload', optionalAuth, upload.single('file'), async (req: Request,
       mimeType: validation.mimeType || mimetype,
       size,
       filePath,
-      userId: req.user?.uid, // Optional user ID from authentication
+      ...(req.user?.uid ? { userId: req.user.uid } : {}), // Optional user ID from authentication
     };
 
     // Save job record to Supabase if user is authenticated and Supabase is configured
@@ -133,12 +133,15 @@ router.post('/upload', optionalAuth, upload.single('file'), async (req: Request,
     }, 'File uploaded and job queued');
 
     // Return job information
-    res.status(201).json({
+    const responseData = {
       id: jobId,
-      filename: sanitizedFilename,
+      filename: sanitizedFilename, // This should match the frontend UploadResponse interface
       size,
       status: 'processing',
-    });
+    };
+    
+    logger.info({ responseData }, 'Sending upload response');
+    res.status(201).json(responseData);
 
   } catch (error) {
     // Clean up file if it was saved

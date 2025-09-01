@@ -105,13 +105,27 @@ Input: "<INSERT_EXTRACTED_TEXT>"`;
       // Use the helper to safely parse the JSON response
       const parsed = this.cleanAndParseJson<GeminiAnalysisResponse>(responseText);
       
+      // Validate and provide fallbacks for missing properties
+      const validatedResponse: GeminiAnalysisResponse = {
+        sentiment: parsed.sentiment || { label: 'neutral', score: 0 },
+        readability: parsed.readability || { fleschKincaidGrade: 0, fleschScore: 0 },
+        hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : [],
+        emojiSuggestions: Array.isArray(parsed.emojiSuggestions) ? parsed.emojiSuggestions : [],
+        engagementTips: Array.isArray(parsed.engagementTips) ? parsed.engagementTips : [],
+        improvedText: {
+          twitter: parsed.improvedText?.twitter || text.substring(0, 280),
+          instagram: parsed.improvedText?.instagram || text.substring(0, 2200),
+          linkedin: parsed.improvedText?.linkedin || text,
+        },
+      };
+      
       logger.info({
         processingTimeMs: Date.now() - startTime,
         textLength: text.length,
-        hashtagCount: parsed.hashtags.length,
+        hashtagCount: validatedResponse.hashtags.length,
       }, 'Gemini analysis completed');
 
-      return parsed;
+      return validatedResponse;
     } catch (error) {
       logger.error(error, 'Gemini analysis failed');
       throw new Error('Text analysis failed');
@@ -131,12 +145,15 @@ Input: "<INSERT_EXTRACTED_TEXT>"`;
       // Use the helper to safely parse the JSON response
       const parsed = this.cleanAndParseJson<{ hashtags: Array<{ tag: string; rationale: string }> }>(responseText);
       
+      // Validate hashtags array
+      const hashtags = Array.isArray(parsed.hashtags) ? parsed.hashtags : [];
+      
       logger.info({
         processingTimeMs: Date.now() - startTime,
-        hashtagCount: parsed.hashtags.length,
+        hashtagCount: hashtags.length,
       }, 'Gemini hashtag generation completed');
 
-      return parsed.hashtags;
+      return hashtags;
     } catch (error) {
       logger.error(error, 'Gemini hashtag generation failed');
       throw new Error('Hashtag generation failed');

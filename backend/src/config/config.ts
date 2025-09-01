@@ -6,7 +6,7 @@ dotenv.config();
 const configSchema = z.object({
   nodeEnv: z.enum(['development', 'production', 'test']).default('development'),
   port: z.coerce.number().default(3001),
-  corsOrigin: z.string().default('http://localhost:3000'),
+  corsOrigin: z.string().default('https://lumio-2eb62.web.app'),
   
   // AI Services
   geminiApiKey: z.string().min(1, 'GEMINI_API_KEY is required'),

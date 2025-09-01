@@ -64,7 +64,11 @@ export function LandingPage() {
   ];
 
   const techStack = [
-    { name: 'Google Gemini Pro', icon: '/gemini.png', color: 'text-accent-cyan' }
+    { name: 'Google Gemini Pro', icon: '/gemini.png', color: 'text-accent-cyan' },
+    { name: 'Tesseract OCR', icon: '/tesseract.png', color: 'text-accent-violet' },
+    { name: 'TypeScript', icon: '/typescript.png', color: 'text-success' },
+    { name: 'Firebase', icon: '/firebase.png', color: 'text-warning' },
+    { name: 'Redis', icon: '/redis.png', color: 'text-error' }
   ];
 
   const stats = [
@@ -136,15 +140,20 @@ export function LandingPage() {
             </div>
             
             {/* Tech Stack Icons */}
-            <div className="mt-20 flex justify-center items-center space-x-12">
-              {techStack.map((tech, index) => (
-                <div key={index} className="flex items-center space-x-3 text-muted group hover:text-accent-cyan transition-all duration-300">
-                  <div className="w-8 h-8 rounded-lg bg-surface/50 border border-border/50 group-hover:border-accent-cyan/50 group-hover:bg-accent-cyan/10 p-1.5 transition-all duration-300">
-                    <img src={tech.icon} alt={tech.name} className="w-full h-full object-contain" />
+            <div className="mt-20">
+              <div className="text-center mb-8">
+                <h3 className="text-lg font-medium text-muted mb-4">Powered by Industry-Leading Technologies</h3>
+              </div>
+              <div className="flex flex-wrap justify-center items-center gap-8 max-w-4xl mx-auto">
+                {techStack.map((tech, index) => (
+                  <div key={index} className="flex flex-col items-center space-y-2 text-muted group hover:text-accent-cyan transition-all duration-300">
+                    <div className="w-12 h-12 rounded-xl bg-surface/50 border border-border/50 group-hover:border-accent-cyan/50 group-hover:bg-accent-cyan/10 p-2.5 transition-all duration-300 group-hover:scale-110">
+                      <img src={tech.icon} alt={tech.name} className="w-full h-full object-contain" />
+                    </div>
+                    <span className="text-xs font-medium text-center max-w-20">{tech.name}</span>
                   </div>
-                  <span className="text-sm font-medium">{tech.name}</span>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>

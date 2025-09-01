@@ -1,15 +1,17 @@
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FileText, Sparkles, LogOut, User, History, Zap, Brain, Palette, Home, Menu, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import { cn } from '@/lib/utils';
-import { useState, useEffect } from 'react';
 
 export function Header() {
   const location = useLocation();
   const { currentUser, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLDivElement>(null); // NEW: wrapper ref for the toggle button
 
   // Handle scroll effect
   useEffect(() => {
@@ -26,33 +28,50 @@ export function Header() {
     setIsMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Close mobile menu when clicking outside
+  // Close mobile menu when clicking outside (but ignore clicks on the toggle)
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      if (isMobileMenuOpen && !target.closest('.header-nav')) {
-        setIsMobileMenuOpen(false);
-      }
+      if (!isMobileMenuOpen) return;
+
+      // If clicked inside mobile menu, do nothing
+      if (mobileMenuRef.current && mobileMenuRef.current.contains(target)) return;
+
+      // If clicked the toggle (or its wrapper), do nothing
+      if (toggleRef.current && toggleRef.current.contains(target)) return;
+
+      // Otherwise close the menu
+      setIsMobileMenuOpen(false);
     };
 
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, [isMobileMenuOpen]);
 
+  // Close mobile menu on window resize when switching to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768 && isMobileMenuOpen) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isMobileMenuOpen]);
+
   const handleLogout = async () => {
     try {
       await logout();
-      // toast({ // Removed as per edit hint
-      //   title: 'Logged out',
-      //   description: 'You have been successfully logged out.',
-      // });
     } catch (error) {
-      // toast({ // Removed as per edit hint
-      //   title: 'Logout failed',
-      //   description: 'An error occurred during logout.',
-      //   variant: 'destructive',
-      // });
+      // handle error if needed
     }
+  };
+
+  // Stop propagation so the document click listener won't immediately close the menu
+  const toggleMobileMenu = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setIsMobileMenuOpen(prevState => !prevState);
   };
 
   return (
@@ -65,16 +84,15 @@ export function Header() {
           <Link to="/" className="flex items-center space-x-3 group">
             <div className="brand-icon group-hover:animate-glow-pulse">
               <img 
-                src="/favicon-32x32.png" 
+                src="/android-chrome-192x192.png" 
                 alt="Lumio" 
-                className="h-6 w-6" 
+                className="h-8 w-8" 
                 onError={(e) => {
-                  // Fallback to Brain icon if image fails to load
                   e.currentTarget.style.display = 'none';
                   e.currentTarget.nextElementSibling?.classList.remove('hidden');
                 }}
               />
-              <Brain className="h-6 w-6 text-accent-cyan hidden" />
+              <Brain className="h-8 w-8 text-accent-cyan hidden" />
             </div>
             <div>
               <span className="text-xl font-bold highlight-text">Lumio</span>
@@ -82,24 +100,26 @@ export function Header() {
             </div>
           </Link>
           
-          {/* Mobile Menu Toggle */}
-          <Button
-            variant="ghost"
-            size="sm"
-            className="md:hidden p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle mobile menu"
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </Button>
+          {/* Mobile Menu Toggle — wrapped so we can reference the toggle in outside-click checks */}
+          <div ref={toggleRef} className="md:hidden">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="p-2"
+              onClick={toggleMobileMenu}
+              aria-label="Toggle mobile menu"
+              aria-expanded={isMobileMenuOpen}
+            >
+              {isMobileMenuOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-6">
-            {/* Always show Home */}
             <Link
               to="/"
               className={cn(
@@ -115,7 +135,6 @@ export function Header() {
               <span>Home</span>
             </Link>
 
-            {/* Show About for all users */}
             <Link
               to="/about"
               className={cn(
@@ -131,7 +150,6 @@ export function Header() {
               <span>About</span>
             </Link>
 
-            {/* Show dashboard navigation only for authenticated users */}
             {currentUser && (
               <>
                 <Link
@@ -215,9 +233,8 @@ export function Header() {
 
       {/* Mobile Navigation Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden border-b border-border bg-elevated/98 backdrop-blur">
+        <div ref={mobileMenuRef} className="md:hidden border-b border-border bg-elevated/98 backdrop-blur">
           <div className="container mx-auto px-4 py-4 space-y-4">
-            {/* Mobile Home Link */}
             <Link
               to="/"
               className={cn(
@@ -233,7 +250,6 @@ export function Header() {
               <span className="font-medium">Home</span>
             </Link>
 
-            {/* Mobile About Link */}
             <Link
               to="/about"
               className={cn(
@@ -249,7 +265,6 @@ export function Header() {
               <span className="font-medium">About</span>
             </Link>
 
-            {/* Mobile Dashboard Links (for authenticated users) */}
             {currentUser && (
               <>
                 <Link
@@ -299,7 +314,6 @@ export function Header() {
               </>
             )}
 
-            {/* Mobile User Section */}
             <div className="border-t border-border pt-4">
               {currentUser ? (
                 <div className="space-y-3">

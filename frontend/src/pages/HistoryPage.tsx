@@ -100,7 +100,7 @@ export function HistoryPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto">
+    <div className="w-full max-w-7xl mx-auto">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-text mb-2 flex items-center gap-3">
           <History className="h-8 w-8 text-accent-cyan" />
@@ -121,7 +121,7 @@ export function HistoryPage() {
         <div className="lg:col-span-1">
           {selectedJob ? (
             <div className="space-y-4 sticky top-4">
-              <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
+              <Card className="card-modern hover:shadow-glow-accent transition-all duration-300 border-border/30 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-text">
                     <FileText className="h-5 w-5 text-accent-cyan" />
@@ -141,6 +141,7 @@ export function HistoryPage() {
                             selectedJob.status === 'completed' ? 'default' :
                             selectedJob.status === 'failed' ? 'destructive' : 'secondary'
                           }
+                          className="text-xs"
                         >
                           {selectedJob.status}
                         </Badge>
@@ -184,7 +185,7 @@ export function HistoryPage() {
 
               {/* Analysis Results */}
               {selectedJob.status === 'completed' && selectedJob.analysis && (
-                <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
+                <Card className="card-modern hover:shadow-glow-accent transition-all duration-300 border-border/30 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-text">
                       <BarChart3 className="h-5 w-5 text-accent-violet" />
@@ -201,6 +202,7 @@ export function HistoryPage() {
                             selectedJob.analysis.sentiment.label === 'positive' ? 'default' :
                             selectedJob.analysis.sentiment.label === 'negative' ? 'destructive' : 'secondary'
                           }
+                          className="text-xs"
                         >
                           {selectedJob.analysis.sentiment.label}
                         </Badge>
@@ -239,7 +241,7 @@ export function HistoryPage() {
                         </span>
                         <div className="flex flex-wrap gap-1">
                           {selectedJob.analysis.hashtags.slice(0, 5).map((hashtag, index) => (
-                            <Badge key={index} variant="outline" className="text-xs border-border hover:bg-accent-gradient hover:text-white hover:border-accent-cyan transition-all duration-300">
+                            <Badge key={index} variant="outline" className="text-xs border-border/50 hover:bg-accent-gradient hover:text-white hover:border-accent-cyan transition-all duration-300">
                               {hashtag.tag}
                             </Badge>
                           ))}
@@ -252,7 +254,7 @@ export function HistoryPage() {
 
               {/* Platform Content */}
               {selectedJob.status === 'completed' && selectedJob.analysis?.improvedText && (
-                <Card className="card-modern hover:shadow-glow-accent transition-all duration-300">
+                <Card className="card-modern hover:shadow-glow-accent transition-all duration-300 border-border/30 backdrop-blur-sm">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-text">
                       <Share2 className="h-5 w-5 text-accent-cyan" />
@@ -271,13 +273,13 @@ export function HistoryPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleCopyContent(content, platform)}
-                            className="border-border hover:bg-surface hover:border-accent-cyan transition-all duration-300"
+                            className="border-border/50 hover:bg-surface/50 hover:border-accent-cyan transition-all duration-300"
                           >
                             <Copy className="h-3 w-3 mr-1" />
                             Copy
                           </Button>
                         </div>
-                        <div className="p-3 bg-surface/50 rounded-md text-sm text-text border border-border">
+                        <div className="p-3 bg-surface/50 rounded-md text-sm text-text border border-border/30">
                           {content}
                         </div>
                       </div>
@@ -287,7 +289,7 @@ export function HistoryPage() {
               )}
             </div>
           ) : (
-            <Card className="sticky top-4 card-modern hover:shadow-glow-accent transition-all duration-300">
+            <Card className="sticky top-4 card-modern hover:shadow-glow-accent transition-all duration-300 border-border/30 backdrop-blur-sm">
               <CardContent className="pt-6">
                 <div className="text-center py-8">
                   <Eye className="h-12 w-12 text-muted mx-auto mb-4" />

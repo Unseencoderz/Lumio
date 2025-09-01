@@ -113,23 +113,23 @@ export function AnalyzePage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="w-full max-w-4xl mx-auto space-y-8">
       {/* Header */}
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-2">
-          <Sparkles className="h-6 w-6 text-primary" />
-          <h1 className="text-3xl font-bold">Direct Text Analysis</h1>
+          <Sparkles className="h-6 w-6 text-accent-cyan" />
+          <h1 className="text-3xl font-bold text-text">Direct Text Analysis</h1>
         </div>
-        <p className="text-lg text-muted-foreground">
+        <p className="text-lg text-muted">
           Paste your text directly and get instant AI-powered analysis and optimization.
         </p>
       </div>
 
       {/* Input Form */}
-      <Card>
+      <Card className="card-modern border-border/30 backdrop-blur-sm">
         <CardHeader>
-          <CardTitle>Text Input</CardTitle>
-          <CardDescription>
+          <CardTitle className="text-text">Text Input</CardTitle>
+          <CardDescription className="text-muted">
             Enter or paste your text below for analysis (10 - 50,000 characters).
           </CardDescription>
         </CardHeader>
@@ -139,11 +139,11 @@ export function AnalyzePage() {
               <Textarea
                 {...form.register('text')}
                 placeholder="Paste your text here..."
-                className="min-h-[200px] resize-y"
+                className="min-h-[200px] resize-y border-border/50 focus:border-accent-cyan transition-colors duration-300"
                 disabled={analyzeMutation.isPending}
               />
               <div className="flex items-center justify-between mt-2">
-                <p className="text-sm text-muted-foreground">
+                <p className="text-sm text-muted">
                   {form.watch('text')?.length || 0} / 50,000 characters
                 </p>
                 {form.formState.errors.text && (
@@ -156,7 +156,7 @@ export function AnalyzePage() {
 
             {/* Platform Selection */}
             <div className="space-y-2">
-              <label className="text-sm font-medium">Target Platforms</label>
+              <label className="text-sm font-medium text-text">Target Platforms</label>
               <div className="flex space-x-2">
                 {['twitter', 'instagram', 'linkedin'].map((platform) => (
                   <Badge
@@ -166,7 +166,11 @@ export function AnalyzePage() {
                         ? 'default' 
                         : 'outline'
                     }
-                    className="cursor-pointer"
+                    className={`cursor-pointer transition-all duration-300 ${
+                      form.watch('targets').includes(platform as any)
+                        ? 'bg-accent-gradient text-white border-0'
+                        : 'border-border/50 hover:bg-surface/50 hover:border-accent-cyan'
+                    }`}
                     onClick={() => {
                       const current = form.getValues('targets');
                       const updated = current.includes(platform as any)
@@ -188,7 +192,7 @@ export function AnalyzePage() {
               <Button
                 type="submit"
                 disabled={analyzeMutation.isPending || !form.watch('text')?.trim()}
-                className="flex-1"
+                className="flex-1 bg-gradient-to-r from-accent-cyan to-accent-violet text-white border-0 shadow-glow-cyan hover:shadow-glow-accent transition-all duration-300 hover:scale-105"
               >
                 {analyzeMutation.isPending ? (
                   <>
@@ -208,9 +212,10 @@ export function AnalyzePage() {
                 variant="outline"
                 onClick={handleHashtagOnly}
                 disabled={hashtagMutation.isPending || !form.watch('text')?.trim()}
+                className="border-border/50 hover:bg-surface/50 hover:border-accent-cyan transition-all duration-300"
               >
                 {hashtagMutation.isPending ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4" />
                 ) : (
                   <Hash className="h-4 w-4" />
                 )}
@@ -227,10 +232,10 @@ export function AnalyzePage() {
           {/* Overview Cards */}
           <div className="grid md:grid-cols-3 gap-4">
             {/* Sentiment */}
-            <Card>
+            <Card className="card-modern border-border/30 backdrop-blur-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center space-x-2">
-                  <Heart className="h-4 w-4" />
+                <CardTitle className="text-sm flex items-center space-x-2 text-text">
+                  <Heart className="h-4 w-4 text-accent-cyan" />
                   <span>Sentiment</span>
                 </CardTitle>
               </CardHeader>
@@ -243,7 +248,7 @@ export function AnalyzePage() {
                     <p className={`font-medium capitalize ${getSentimentColor(result.sentiment.label)}`}>
                       {result.sentiment.label}
                     </p>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted">
                       {result.sentiment.score.toFixed(2)}
                     </p>
                   </div>
@@ -252,21 +257,21 @@ export function AnalyzePage() {
             </Card>
 
             {/* Engagement */}
-            <Card>
+            <Card className="card-modern border-border/30 backdrop-blur-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm flex items-center space-x-2">
-                  <TrendingUp className="h-4 w-4" />
+                <CardTitle className="text-sm flex items-center space-x-2 text-text">
+                  <TrendingUp className="h-4 w-4 text-accent-violet" />
                   <span>Engagement</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-2">
-                  <div className="text-2xl font-bold">
+                  <div className="text-2xl font-bold text-text">
                     {Math.round(result.engagementScore * 100)}%
                   </div>
-                  <div className="w-full bg-secondary rounded-full h-1.5">
+                  <div className="w-full bg-surface rounded-full h-1.5">
                     <div 
-                      className="bg-primary h-1.5 rounded-full"
+                      className="bg-gradient-to-r from-accent-cyan to-accent-violet h-1.5 rounded-full transition-all duration-300"
                       style={{ width: `${result.engagementScore * 100}%` }}
                     />
                   </div>
@@ -275,16 +280,16 @@ export function AnalyzePage() {
             </Card>
 
             {/* Reading Grade */}
-            <Card>
+            <Card className="card-modern border-border/30 backdrop-blur-sm">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm">Reading Level</CardTitle>
+                <CardTitle className="text-sm text-text">Reading Level</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-1">
-                  <div className="text-2xl font-bold">
+                  <div className="text-2xl font-bold text-text">
                     Grade {result.readingGrade}
                   </div>
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-muted">
                     {result.wordCount} words
                   </p>
                 </div>
@@ -294,10 +299,25 @@ export function AnalyzePage() {
 
           {/* Tabbed Content */}
           <Tabs defaultValue="social" className="space-y-4">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="social">Social Media</TabsTrigger>
-              <TabsTrigger value="hashtags">Hashtags & Emojis</TabsTrigger>
-              <TabsTrigger value="tips">Engagement Tips</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 bg-surface/50 border border-border/30 backdrop-blur-sm">
+              <TabsTrigger 
+                value="social" 
+                className="data-[state=active]:bg-accent-gradient data-[state=active]:text-white data-[state=active]:border-0 transition-all duration-300"
+              >
+                Social Media
+              </TabsTrigger>
+              <TabsTrigger 
+                value="hashtags" 
+                className="data-[state=active]:bg-accent-gradient data-[state=active]:text-white data-[state=active]:border-0 transition-all duration-300"
+              >
+                Hashtags & Emojis
+              </TabsTrigger>
+              <TabsTrigger 
+                value="tips" 
+                className="data-[state=active]:bg-accent-gradient data-[state=active]:text-white data-[state=active]:border-0 transition-all duration-300"
+              >
+                Engagement Tips
+              </TabsTrigger>
             </TabsList>
 
             {/* Social Media Tab */}

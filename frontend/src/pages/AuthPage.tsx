@@ -160,28 +160,30 @@ export function AuthPage() {
             <div className="text-center mb-8">
               <div className="brand-icon mx-auto mb-4">
                 <img 
-                  src="/favicon-32x32.png" 
+                  src="/android-chrome-192x192.png" 
                   alt="Lumio" 
-                  className="h-8 w-8" 
+                  className="h-12 w-12" 
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                     e.currentTarget.nextElementSibling?.classList.remove('hidden');
                   }}
                 />
-                <Sparkles className="h-8 w-8 text-accent-cyan hidden" />
+                <Sparkles className="h-12 w-12 text-accent-cyan hidden" />
               </div>
-              <h1 className="text-2xl font-bold highlight-text mb-2">Welcome to Lumio</h1>
-              <p className="text-sm text-muted">Make every post shine with AI</p>
+              <h1 className="text-3xl font-bold bg-gradient-to-r from-accent-cyan to-accent-violet bg-clip-text text-transparent mb-2">
+                Welcome to Lumio
+              </h1>
+              <p className="text-muted">Make every post shine with AI</p>
             </div>
 
-        <Card className="card-modern backdrop-blur-sm border-border/30">
+        <Card className="card-modern backdrop-blur-sm border-border/30 shadow-glow-accent">
           <CardHeader className="text-center">
-            <CardTitle>
+            <CardTitle className="text-text">
               {mode === 'login' && 'Welcome Back'}
               {mode === 'signup' && 'Create Account'}
               {mode === 'reset' && 'Reset Password'}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-muted">
               {mode === 'login' && 'Sign in to your account to continue'}
               {mode === 'signup' && 'Join Lumio and start creating amazing content'}
               {mode === 'reset' && 'Enter your email to receive reset instructions'}
@@ -194,7 +196,7 @@ export function AuthPage() {
               <div className="space-y-3">
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full border-border/50 hover:bg-surface/50 hover:border-accent-cyan transition-all duration-300 backdrop-blur-sm"
                   onClick={() => handleSocialLogin('google')}
                   disabled={loading}
                 >
@@ -204,7 +206,7 @@ export function AuthPage() {
                 
                 <Button
                   variant="outline"
-                  className="w-full"
+                  className="w-full border-border/50 hover:bg-surface/50 hover:border-accent-violet transition-all duration-300 backdrop-blur-sm"
                   onClick={() => handleSocialLogin('github')}
                   disabled={loading}
                 >
@@ -214,10 +216,10 @@ export function AuthPage() {
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
+                    <span className="w-full border-t border-border/30" />
                   </div>
                   <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-background px-2 text-muted-foreground">
+                    <span className="bg-background px-2 text-muted">
                       Or continue with email
                     </span>
                   </div>
@@ -229,14 +231,14 @@ export function AuthPage() {
             {mode === 'login' && (
               <form onSubmit={loginForm.handleSubmit(handleLogin)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-text">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="Enter your email"
-                      className="pl-10"
+                      className="pl-10 border-border/50 focus:border-accent-cyan transition-colors duration-300"
                       {...loginForm.register('email')}
                     />
                   </div>
@@ -248,21 +250,21 @@ export function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-text">Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted" />
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Enter your password"
-                      className="pl-10 pr-10"
+                      className="pl-10 pr-10 border-border/50 focus:border-accent-cyan transition-colors duration-300"
                       {...loginForm.register('password')}
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-surface/50"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -275,7 +277,11 @@ export function AuthPage() {
                   )}
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-accent-cyan to-accent-violet text-white border-0 shadow-glow-cyan hover:shadow-glow-accent transition-all duration-300 hover:scale-105" 
+                  disabled={loading}
+                >
                   {loading ? 'Signing in...' : 'Sign In'}
                 </Button>
               </form>
@@ -285,14 +291,14 @@ export function AuthPage() {
             {mode === 'signup' && (
               <form onSubmit={signupForm.handleSubmit(handleSignup)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Full Name</Label>
+                  <Label htmlFor="name" className="text-text">Full Name</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted" />
                     <Input
                       id="name"
                       type="text"
                       placeholder="Enter your full name"
-                      className="pl-10"
+                      className="pl-10 border-border/50 focus:border-accent-cyan transition-colors duration-300"
                       {...signupForm.register('name')}
                     />
                   </div>
@@ -304,14 +310,14 @@ export function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-text">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="Enter your email"
-                      className="pl-10"
+                      className="pl-10 border-border/50 focus:border-accent-cyan transition-colors duration-300"
                       {...signupForm.register('email')}
                     />
                   </div>
@@ -323,21 +329,21 @@ export function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
+                  <Label htmlFor="password" className="text-text">Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted" />
                     <Input
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="Create a password"
-                      className="pl-10 pr-10"
+                      className="pl-10 pr-10 border-border/50 focus:border-accent-cyan transition-colors duration-300"
                       {...signupForm.register('password')}
                     />
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="absolute right-0 top-0 h-full px-3"
+                      className="absolute right-0 top-0 h-full px-3 hover:bg-surface/50"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -351,14 +357,14 @@ export function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm Password</Label>
+                  <Label htmlFor="confirmPassword" className="text-text">Confirm Password</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Lock className="absolute left-3 top-3 h-4 w-4 text-muted" />
                     <Input
                       id="confirmPassword"
                       type="password"
                       placeholder="Confirm your password"
-                      className="pl-10"
+                      className="pl-10 border-border/50 focus:border-accent-cyan transition-colors duration-300"
                       {...signupForm.register('confirmPassword')}
                     />
                   </div>
@@ -369,7 +375,11 @@ export function AuthPage() {
                   )}
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-accent-cyan to-accent-violet text-white border-0 shadow-glow-cyan hover:shadow-glow-accent transition-all duration-300 hover:scale-105" 
+                  disabled={loading}
+                >
                   {loading ? 'Creating account...' : 'Create Account'}
                 </Button>
               </form>
@@ -379,14 +389,14 @@ export function AuthPage() {
             {mode === 'reset' && (
               <form onSubmit={resetForm.handleSubmit(handleReset)} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email" className="text-text">Email</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Mail className="absolute left-3 top-3 h-4 w-4 text-muted" />
                     <Input
                       id="email"
                       type="email"
                       placeholder="Enter your email"
-                      className="pl-10"
+                      className="pl-10 border-border/50 focus:border-accent-cyan transition-colors duration-300"
                       {...resetForm.register('email')}
                     />
                   </div>
@@ -397,7 +407,11 @@ export function AuthPage() {
                   )}
                 </div>
 
-                <Button type="submit" className="w-full" disabled={loading}>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-gradient-to-r from-accent-cyan to-accent-violet text-white border-0 shadow-glow-cyan hover:shadow-glow-accent transition-all duration-300 hover:scale-105" 
+                  disabled={loading}
+                >
                   {loading ? 'Sending...' : 'Send Reset Email'}
                 </Button>
               </form>
@@ -407,12 +421,12 @@ export function AuthPage() {
             <div className="text-center text-sm">
               {mode === 'login' && (
                 <>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted">
                     Don't have an account?{' '}
                     <button
                       type="button"
                       onClick={() => setMode('signup')}
-                      className="text-primary hover:underline"
+                      className="text-accent-cyan hover:text-accent-violet transition-colors duration-300 font-medium"
                     >
                       Sign up
                     </button>
@@ -420,7 +434,7 @@ export function AuthPage() {
                   <button
                     type="button"
                     onClick={() => setMode('reset')}
-                    className="text-primary hover:underline mt-2 block mx-auto"
+                    className="text-accent-cyan hover:text-accent-violet transition-colors duration-300 font-medium mt-2 block mx-auto"
                   >
                     Forgot password?
                   </button>
@@ -428,12 +442,12 @@ export function AuthPage() {
               )}
 
               {mode === 'signup' && (
-                <p className="text-muted-foreground">
+                <p className="text-muted">
                   Already have an account?{' '}
                   <button
                     type="button"
                     onClick={() => setMode('login')}
-                    className="text-primary hover:underline"
+                    className="text-accent-cyan hover:text-accent-violet transition-colors duration-300 font-medium"
                   >
                     Sign in
                   </button>
@@ -441,12 +455,12 @@ export function AuthPage() {
               )}
 
               {mode === 'reset' && (
-                <p className="text-muted-foreground">
+                <p className="text-muted">
                   Remember your password?{' '}
                   <button
                     type="button"
                     onClick={() => setMode('login')}
-                    className="text-primary hover:underline"
+                    className="text-accent-cyan hover:text-accent-violet transition-colors duration-300 font-medium"
                   >
                     Sign in
                   </button>

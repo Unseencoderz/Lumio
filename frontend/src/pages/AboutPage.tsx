@@ -349,17 +349,7 @@ export function AboutPage() {
           <div className="flex flex-col md:flex-row justify-between items-center">
             <Link to="/" className="flex items-center space-x-3 mb-6 md:mb-0 group">
               <div className="brand-icon group-hover:scale-110 transition-transform duration-300">
-                <img 
-                  src="/favicon-32x32.png" 
-                  alt="Lumio" 
-                  className="h-6 w-6" 
-                  onError={(e) => {
-                    // Fallback to Brain icon if image fails to load
-                    e.currentTarget.style.display = 'none';
-                    e.currentTarget.nextElementSibling?.classList.remove('hidden');
-                  }}
-                />
-                <Brain className="h-6 w-6 text-accent-cyan hidden" />
+                <img src="/android-chrome-192x192.png" alt="Lumio" className="h-6 w-6" />
               </div>
               <span className="text-2xl font-bold bg-gradient-to-r from-accent-cyan to-accent-violet bg-clip-text text-transparent">
                 Lumio

@@ -14,9 +14,6 @@ AI-powered document text extraction and social media optimization platform. Tran
 
 _Clean and intuitive landing page with AI integration_
 
-<img src="https://res.cloudinary.com/dqeyxipob/image/upload/v1757155905/landingPage2_ldxhs1.png" alt="Lumio AI Homepage - Features Section" width="800"/>
-
-_Feature highlights and AI capabilities overview_
 
 #### Dashboard
 

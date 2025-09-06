@@ -2,8 +2,58 @@
 
 AI-powered document text extraction and social media optimization platform. Transform your PDFs and images into engaging social media content with advanced AI analysis and Firebase authentication.
 
-![Post Polish Demo](https://via.placeholder.com/800x400/4f46e5/ffffff?text=Post+Polish+Demo)
+## 📸 Preview
 
+### Application Screenshots
+
+<div align="center">
+
+#### Homepage - Landing Page Overview
+
+<img src="https://res.cloudinary.com/dqeyxipob/image/upload/v1757155906/landingPage1_nazdsh.png" alt="Lumio AI Homepage - Main Landing" width="800"/>
+
+_Clean and intuitive landing page with AI integration_
+
+<img src="https://res.cloudinary.com/dqeyxipob/image/upload/v1757155905/landingPage2_ldxhs1.png" alt="Lumio AI Homepage - Features Section" width="800"/>
+
+_Feature highlights and AI capabilities overview_
+
+#### Dashboard
+
+<img src="https://res.cloudinary.com/dqeyxipob/image/upload/v1757155333/profile-avatars/ykigabivxe8zc2rbkql5.png" alt="Lumio AI Dashboard" width="800"/>
+
+_Feature-rich dashboard for AI-powered content management_
+
+#### Additional Features
+
+<img src="https://res.cloudinary.com/dqeyxipob/image/upload/v1757155906/landingPage4_frjqqv.png" alt="Lumio AI Advanced Features" width="800"/>
+
+_Advanced AI automation and intelligent workflows_
+
+<img src="https://res.cloudinary.com/dqeyxipob/image/upload/v1757155906/landingpage3_dauou0.png" alt="Lumio AI Integration Details" width="800"/>
+
+_Seamless AI integration and smart setup_
+
+## 📽️ Demo Video
+
+> Watch Lumio AI in action — intelligent automation and AI-powered workflows.
+
+<p align="center">
+  <a href="https://youtu.be/B4d1fZqNpOA" target="_blank">
+    <img src="https://img.youtube.com/vi/B4d1fZqNpOA/hqdefault.jpg" 
+         alt="Lumio AI Demo" width="600">
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://youtu.be/B4d1fZqNpOA" target="_blank">
+    <img src="https://img.shields.io/badge/Watch%20Demo%20on%20YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch on YouTube">
+  </a>
+</p>
+
+*🎬 Complete workflow demonstration from AI setup to intelligent automation.*
+
+</div>
 ## 🚀 Features
 
 - **Smart Text Extraction**: Extract text from PDFs and images using Google Gemini Pro with Tesseract fallback
@@ -487,6 +537,40 @@ GET /health
    # Serve Frontend
    serve -s frontend/dist -l 3000
    ```
+
+### Firebase Hosting (Frontend)
+
+1. Add `VITE_API_BASE_URL` to Firebase Hosting environment config so the frontend calls your backend directly:
+   - If your backend is on Render at `https://your-backend.onrender.com/api`, set:
+   ```env
+   VITE_API_BASE_URL=https://your-backend.onrender.com/api
+   ```
+   - Ensure you rebuild before deploying so Vite inlines the value:
+   ```bash
+   cd frontend
+   echo VITE_API_BASE_URL=https://your-backend.onrender.com/api > .env.production
+   npm run build
+   firebase deploy --only hosting
+   ```
+
+2. Firebase `rewrites` should only serve SPA routes. API calls must go to your backend domain (we use the absolute base URL above). Avoid proxying `/api` via Firebase unless you configure a function/redirect explicitly.
+
+### Render (Backend)
+
+1. Set environment variables in your Render service:
+   - `NODE_ENV=production`
+   - `PORT=10000` (Render provides `$PORT` automatically)
+   - `CORS_ORIGIN` to a comma-separated list of your frontend origins, e.g.:
+     ```
+     https://your-frontend-url
+     ```
+   - Plus all required keys (Gemini, Firebase Admin, Supabase, Redis)
+
+2. Verify health and API prefix:
+   - Health: `GET https://your-backend.onrender.com/health`
+   - API: `POST https://your-backend.onrender.com/api/upload`
+
+3. If you see HTML returned to API calls, the request is hitting the frontend. Ensure the frontend uses `VITE_API_BASE_URL` pointing to Render and rebuild/redeploy.
 
 ## 🔒 Security Features
 

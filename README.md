@@ -51,6 +51,7 @@ _Seamless AI integration and smart setup_
 *🎬 Complete workflow demonstration from AI setup to intelligent automation.*
 
 </div>
+
 ## 🚀 Features
 
 - **Smart Text Extraction**: Extract text from PDFs and images using Google Gemini Pro with Tesseract fallback

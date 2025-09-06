@@ -39,14 +39,14 @@ _Seamless AI integration and smart setup_
 > Watch Lumio AI in action — intelligent automation and AI-powered workflows.
 
 <p align="center">
-  <a href="https://youtu.be/B4d1fZqNpOA" target="_blank">
-    <img src="https://img.youtube.com/vi/B4d1fZqNpOA/hqdefault.jpg" 
+  <a href="https://youtu.be/YWraKasHtoM" target="_blank">
+    <img src="https://img.youtube.com/vi/YWraKasHtoM/hqdefault.jpg" 
          alt="Lumio AI Demo" width="600">
   </a>
 </p>
 
 <p align="center">
-  <a href="https://youtu.be/B4d1fZqNpOA" target="_blank">
+  <a href="https://youtu.be/YWraKasHtoM" target="_blank">
     <img src="https://img.shields.io/badge/Watch%20Demo%20on%20YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Watch on YouTube">
   </a>
 </p>
